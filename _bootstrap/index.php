@@ -75,33 +75,33 @@ if (!createObject('modSystemSetting', [
 }
 
 // Menu
+//
+//if (!createObject('modMenu', [
+//  'action' => 'index',
+//  'namespace' => PKG_NAME_LOWER,
+//
+//  'text' => PKG_NAME_LOWER . '.menu',
+//  'parent' => 'components',
+//  'description' => PKG_NAME_LOWER . '.menu_desc',
+//  'icon' => 'images/icons/plugin.gif',
+//  'menuindex' => '0',
+//  'params' => '',
+//  'handler' => '',
+//], '', true)) {
+//  echo "Error creating menu.\n";
+//}
 
-if (!createObject('modMenu', [
-  'action' => 'index',
-  'namespace' => PKG_NAME_LOWER,
-
-  'text' => PKG_NAME_LOWER . '.menu',
-  'parent' => 'components',
-  'description' => PKG_NAME_LOWER . '.menu_desc',
-  'icon' => 'images/icons/plugin.gif',
-  'menuindex' => '0',
-  'params' => '',
-  'handler' => '',
-], '', true)) {
-  echo "Error creating menu.\n";
-}
-
-
-if (!createObject('modPlugin', [
-  'name' => 'SiteDashClient',
-  'static' => true,
-  'static_file' => $componentPath.'/_build/elements/plugins/' . PKG_NAME_LOWER . '.plugin.php',
-], 'name', true)) {
-  echo "Error creating SiteDashClient Plugin.\n";
-}
-
-$vcPlugin = $modx->getObject('modPlugin', ['name' => 'SiteDashClient']);
-if ($vcPlugin) {
+//
+//if (!createObject('modPlugin', [
+//  'name' => 'SiteDashClient',
+//  'static' => true,
+//  'static_file' => $componentPath.'/_build/elements/plugins/' . PKG_NAME_LOWER . '.plugin.php',
+//], 'name', true)) {
+//  echo "Error creating SiteDashClient Plugin.\n";
+//}
+//
+//$vcPlugin = $modx->getObject('modPlugin', ['name' => 'SiteDashClient']);
+//if ($vcPlugin) {
 //  if (!createObject('modPluginEvent', array(
 //    'pluginid' => $vcPlugin->get('id'),
 //    'event' => 'OnDocFormPrerender',
@@ -109,7 +109,7 @@ if ($vcPlugin) {
 //  ), array('pluginid','event'), false)) {
 //    echo "Error creating modPluginEvent.\n";
 //  }
-}
+//}
 
 $containers = [
 ];
