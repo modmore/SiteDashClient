@@ -1,0 +1,15 @@
+{
+    "name": "modmore/sitedashclient",
+    "authors": [
+        {
+            "name": "Mark Hamstra",
+            "email": "hello@markhamstra.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "modmore\\SiteDashClient\\": "src/"
+        }
+    }
+}
