@@ -10,8 +10,13 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         }
 
         if (empty($key)) {
-            return '<label for="sdc-site-key">Site Key</label>
+            $output = '<label for="sdc-site-key">Site Key</label>
                 <input type="text" name="site_key" id="sdc-site-key" value="">';
+
+            $output .= '<label for="sdc-sitedash-server">SiteDash Server</label>
+                <input type="text" name="site_dash_server" id="sdc-sitedash-server" value="http://sitedashboard.local/">';
+
+            return $output;
         }
     break;
     default:

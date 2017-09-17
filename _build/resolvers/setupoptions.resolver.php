@@ -19,10 +19,45 @@ if (empty($siteKey)) {
     $modx->log(modX::LOG_LEVEL_ERROR, 'Oops, you did not provide the Site Key. The Site Key is used to identify and authenticate this with the SiteDash platform.');
     return false;
 }
-$modx->log(modX::LOG_LEVEL_WARN, 'Setting Site Key to: ' . $siteKey);
-file_put_contents(MODX_CORE_PATH . 'components/sitedashclient/.sdc_site_key', $siteKey);
+$modx->log(modX::LOG_LEVEL_WARN, 'Verifying Site Key "' . $siteKey . '"');
 
-// @todo communicate with SiteDash to verify site key, create a pub/private key pair, and to download the public
-// key into a .sdc_public_key file.
+// Authenticate the siteKey
+$server = array_key_exists('site_dash_server', $options) ? $options['site_dash_server'] : false;
+if (!$server) {
+    $modx->log(modX::LOG_LEVEL_ERROR, 'Please enter a valid SiteDash Server URL.');
+    return false;
+}
+
+$url = $server . '/api/site/' . $siteKey . '/authenticate?domain=' . urlencode($modx->getOption('http_host'));
+
+$ch = curl_init($url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, TRUE);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+$response = curl_exec($ch);
+$info = curl_getinfo($ch);
+curl_close($ch);
+
+$data = json_decode($response, true);
+if ($info['http_code'] !== 200) {
+    $modx->log(modX::LOG_LEVEL_ERROR, 'Could not verify your Site Key. Received HTTP Code ' . $info['http_code'] . ' with message: ' . (is_array($data) && isset($data['object']) && isset($data['object']['message'])) ? $data['object']['message'] : 'No message.');
+    return false;
+}
+
+if (!is_array($data) || !array_key_exists('object', $data)) {
+    $modx->log(modX::LOG_LEVEL_ERROR, 'Received unexpected response: ' . htmlentities($response));
+    return false;
+}
+
+// Store the site key
+$modx->log(modX::LOG_LEVEL_INFO, 'Verification was successful, saving your site key...');
+file_put_contents(MODX_CORE_PATH . 'components/sitedashclient/.sdc_site_key', $siteKey);
+if (array_key_exists('public_key', $data['object'])) {
+    $modx->log(modX::LOG_LEVEL_INFO, 'Saving new Public Key from SiteDash...');
+    file_put_contents(MODX_CORE_PATH . 'components/sitedashclient/.sdc_public_key', $data['object']['public_key']);
+}
+else {
+    $modx->log(modX::LOG_LEVEL_WARN, 'Note: no public key was received. This is expected when you\'re upgrading the SiteDash Client on an existing site that was already verified. If you no longer have the public key and run into verification issues, please try creating a new site in the SiteDash dashboard, or contact support for help.');
+}
 
 return true;
