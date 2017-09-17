@@ -24,7 +24,6 @@ $modx->getService('error','error.modError', '', '');
 
 // Get the SiteDashClient service class
 $corePath = $modx->getOption('sitedashclient.core_path',null,$modx->getOption('core_path').'components/sitedashclient/') . 'model/sitedashclient/';
-echo $corePath;
 /** @var SiteDashClient $sdc */
 $sdc = $modx->getService('sitedashclient', 'SiteDashClient', $corePath);
 
