@@ -57,7 +57,7 @@ class SiteDashClient
         $sigData = 'SIG-V1||';
         $sigData .= !empty($data['request']) ? $data['request'] : 'REQUEST-NOT-PROVIDED';
         $sigData .= '||';
-        $sigData .= !empty($data['params']) ? $data['params'] : 'PARAMS-NOT-PROVIDED';
+        $sigData .= !empty($data['params']) ? $this->_stringifyParams($data['params']) : 'PARAMS-NOT-PROVIDED';
         $sigData .= '||';
         $sigData .= !empty($siteKey) ? $siteKey : 'SITEKEY-NOT-PROVIDED';
 
@@ -92,5 +92,15 @@ class SiteDashClient
             return @file_get_contents($actualSiteKeyFile);
         }
         return false;
+    }
+
+    protected function _stringifyParams(array $params)
+    {
+        $stringParams = [];
+        foreach ($params as $key => $value) {
+            $stringParams[] = $key . ':' . $value;
+        }
+        $stringParams = implode(',', $stringParams);
+        return $stringParams;
     }
 }
