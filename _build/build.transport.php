@@ -22,7 +22,7 @@ set_time_limit(0);
 /* define version */
 define('PKG_NAME','SiteDashClient');
 define('PKG_NAME_LOWER',strtolower(PKG_NAME));
-define('PKG_VERSION','1.1.2');
+define('PKG_VERSION','0.1.8');
 define('PKG_RELEASE','pl');
 
 /* load modx */
@@ -91,10 +91,11 @@ $category->set('category',PKG_NAME);
 
 /* create category vehicle */
 $attr = array(
-  xPDOTransport::UNIQUE_KEY => 'category',
-  xPDOTransport::PRESERVE_KEYS => false,
-  xPDOTransport::UPDATE_OBJECT => true,
-  xPDOTransport::RELATED_OBJECTS => false,
+    xPDOTransport::UNIQUE_KEY => 'category',
+    xPDOTransport::PRESERVE_KEYS => false,
+    xPDOTransport::UPDATE_OBJECT => true,
+    xPDOTransport::RELATED_OBJECTS => false,
+    xPDOTransport::ABORT_INSTALL_ON_VEHICLE_FAIL => true,
 );
 //  xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array (
 //    'Snippets' => array(
@@ -118,7 +119,6 @@ $attr = array(
 //  ),
 //);
 $vehicle = $builder->createVehicle($category,$attr);
-$builder->putVehicle($vehicle);
 
 $modx->log(modX::LOG_LEVEL_INFO,'Packaged in category.'); flush();
 
@@ -169,14 +169,12 @@ $vehicle->resolve('file',array(
     'source' => $sources['source_assets'],
     'target' => "return MODX_ASSETS_PATH . 'components/';",
 ));
-$vehicle->resolve('php',array(
-    'source' => $sources['resolvers'] . 'setupoptions.resolver.php',
+$vehicle->resolve('php', array(
+    'source' => $sources['resolvers'] . 'sitekey.resolver.php'
 ));
 
 $modx->log(modX::LOG_LEVEL_INFO,'Packaged in resolvers.'); flush();
 $builder->putVehicle($vehicle);
-
-
 
 /* now pack in the license file, readme and setup options */
 $builder->setPackageAttributes(array(
