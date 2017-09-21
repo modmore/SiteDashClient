@@ -14,7 +14,7 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
             <input type="text" name="site_key" id="sdc-site-key" value="' . $key . '">';
 
         $output .= '<label for="sdc-sitedash-server">SiteDash Server</label>
-            <input type="text" name="site_dash_server" id="sdc-sitedash-server" value="http://sitedashboard.local/">';
+            <input type="text" name="site_dash_server" id="sdc-sitedash-server" value="https://sd.modmore.com/">';
 
         return $output;
     break;
