@@ -25,10 +25,15 @@ class LoadSystemData implements LoadDataInterface {
     {
         $data = [];
         $data['version'] = include MODX_CORE_PATH . 'docs/version.inc.php';
+        $data['client_url'] = $this->modx->getOption('sitedashclient.assets_url', null, $this->modx->getOption('assets_url') . 'components/sitedashclient/') . 'pull.php';
         $data['manager_url'] = $this->modx->getOption('manager_url');
         $data['core_outside_root'] = strpos(MODX_CORE_PATH, MODX_BASE_PATH) === -1;
         $data['manager_language'] = $this->modx->getOption('manager_language');
         $data['which_editor'] = $this->modx->getOption('which_editor');
+        $errorFile = $this->modx->getOption('cache_path') . 'logs/error.log';
+        $data['error_log_size'] = file_exists($errorFile) ? filesize($errorFile) : 0;
+        $data['users'] = $this->modx->getCount('modUser');
+        $data['users_sudo'] = $this->modx->getCount('modUser', ['sudo' => true]);
         return $data;
     }
 
