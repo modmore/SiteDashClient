@@ -34,6 +34,13 @@ class LoadSystemData implements LoadDataInterface {
         $data['error_log_size'] = file_exists($errorFile) ? filesize($errorFile) : 0;
         $data['users'] = $this->modx->getCount('modUser');
         $data['users_sudo'] = $this->modx->getCount('modUser', ['sudo' => true]);
+        $data['users_sudo_usernames'] = [];
+        $c = $this->modx->newQuery('modUser');
+        $c->select($this->modx->getSelectColumns('modUser', 'modUser', '', ['id', 'username']));
+        $c->where(['sudo' => true]);
+        foreach ($this->modx->getIterator('modUser', $c) as $sudoUser) {
+            $data['users_sudo_usernames'][] = $sudoUser->get('username');
+        }
         return $data;
     }
 
