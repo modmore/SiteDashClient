@@ -22,7 +22,7 @@ set_time_limit(0);
 /* define version */
 define('PKG_NAME','SiteDashClient');
 define('PKG_NAME_LOWER',strtolower(PKG_NAME));
-define('PKG_VERSION','0.2.1');
+define('PKG_VERSION','0.2.2');
 define('PKG_RELEASE','pl');
 
 /* load modx */
