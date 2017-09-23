@@ -19,11 +19,29 @@ $mtime = $mtime[1] + $mtime[0];
 $tstart = $mtime;
 set_time_limit(0);
 
-/* define version */
-define('PKG_NAME','SiteDashClient');
-define('PKG_NAME_LOWER',strtolower(PKG_NAME));
-define('PKG_VERSION','0.2.2');
-define('PKG_RELEASE','pl');
+if (!defined('MOREPROVIDER_BUILD')) {
+    /* define version */
+    define('PKG_NAME','SiteDashClient');
+    define('PKG_NAME_LOWER',strtolower(PKG_NAME));
+    define('PKG_VERSION','0.3.0');
+    define('PKG_RELEASE','pl');
+
+    /* load modx */
+    require_once dirname(dirname(__FILE__)) . '/config.core.php';
+    require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
+    $modx= new modX();
+    $modx->initialize('mgr');
+    $modx->setLogLevel(modX::LOG_LEVEL_INFO);
+    $modx->setLogTarget('ECHO');
+
+
+    echo '<pre>';
+    flush();
+    $targetDirectory = dirname(dirname(__FILE__)) . '/_packages/';
+}
+else {
+    $targetDirectory = MOREPROVIDER_BUILD_TARGET;
+}
 
 /* load modx */
 require_once dirname(dirname(__FILE__)) . '/config.core.php';

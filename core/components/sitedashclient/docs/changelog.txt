@@ -1,4 +1,4 @@
-++ SiteDash Client 0.1-dev
-++ Released on 2017-09-17
+++ SiteDash Client 0.3.0-pl
+++ Released on 2017-09-24
 +++++++++++++++++++++++++++
-- First dev build
+- First packaged build
