@@ -43,18 +43,6 @@ else {
     $targetDirectory = MOREPROVIDER_BUILD_TARGET;
 }
 
-/* load modx */
-require_once dirname(dirname(__FILE__)) . '/config.core.php';
-require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
-$modx= new modX();
-$modx->initialize('mgr');
-$modx->setLogLevel(modX::LOG_LEVEL_INFO);
-$modx->setLogTarget('ECHO');
-
-echo '<pre>';
-flush();
-$targetDirectory = dirname(dirname(__FILE__)) . '/_packages/';
-
 $root = dirname(dirname(__FILE__)).'/';
 $sources= array (
     'root' => $root,
