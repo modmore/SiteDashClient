@@ -15,6 +15,7 @@ class LoadSystemData implements LoadDataInterface {
     public function run()
     {
         $data = [];
+        $data['client'] = \SiteDashClient::VERSION;
         $data['modx'] = $this->getMODXData();
         $data['server'] = $this->getServerInformation();
         $data['packages'] = $this->getPackages();
