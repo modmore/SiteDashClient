@@ -45,17 +45,28 @@ if (!$sdc->isValidRequest($siteKey, $signature, $_POST)) {
 // Make sure the params are sanitized
 $params = $modx::sanitize($_POST);
 
-// Create our data class and run it
-$dataCommand = new \modmore\SiteDashClient\LoadSystemData($modx, $params);
-$data = $dataCommand->run();
+switch ($params['request']) {
+    case 'system':
+        // Create our data class and run it
+        $dataCommand = new \modmore\SiteDashClient\LoadSystemData($modx, $params);
+        $data = $dataCommand->run();
 
-// Output the requested info
-http_response_code(200);
-echo json_encode([
-    'success' => true,
-    'data' => $data,
-], JSON_PRETTY_PRINT);
+        // Output the requested info
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'data' => $data,
+        ], JSON_PRETTY_PRINT);
+        break;
+
+    case 'errorlog':
+        $errorLog = new \modmore\SiteDashClient\DownloadErrorLog($modx, $params);
+        $errorLog->run();
+        break;
+
+}
 @session_write_close();
 exit();
+
 
 
