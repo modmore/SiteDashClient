@@ -1,3 +1,5 @@
+- Fix "core out of webroot" check causing false negatives.
+
 ++ SiteDash Client 0.4.0-pl
 ++ Released on 2017-11-22
 +++++++++++++++++++++++++++

@@ -28,7 +28,7 @@ class LoadSystemData implements LoadDataInterface {
         $data['version'] = include MODX_CORE_PATH . 'docs/version.inc.php';
         $data['client_url'] = $this->modx->getOption('sitedashclient.assets_url', null, $this->modx->getOption('assets_url') . 'components/sitedashclient/') . 'pull.php';
         $data['manager_url'] = $this->modx->getOption('manager_url');
-        $data['core_outside_root'] = strpos(MODX_CORE_PATH, MODX_BASE_PATH) === -1;
+        $data['core_outside_root'] = strpos(MODX_CORE_PATH, MODX_BASE_PATH) === false;
         $data['core_folder'] = $data['core_outside_root'] ? false : substr(MODX_CORE_PATH, strlen(MODX_BASE_PATH));
         $data['manager_language'] = $this->modx->getOption('manager_language');
         $data['which_editor'] = $this->modx->getOption('which_editor');
