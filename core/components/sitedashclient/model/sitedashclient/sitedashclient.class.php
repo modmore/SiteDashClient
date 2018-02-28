@@ -7,7 +7,7 @@ require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
  */
 class SiteDashClient
 {
-    const VERSION = '0.4.1-pl';
+    const VERSION = '0.4.2-pl';
     /**
      * @var modX|null $modx
      */
