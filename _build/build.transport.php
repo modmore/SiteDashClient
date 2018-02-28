@@ -66,6 +66,14 @@ $builder->createPackage(PKG_NAME_LOWER,PKG_VERSION,PKG_RELEASE);
 $builder->registerNamespace(PKG_NAME_LOWER,false,true,'{core_path}components/'.PKG_NAME_LOWER.'/');
 $modx->getService('lexicon','modLexicon');
 
+if (file_exists($sources['source_core'] . '/.sdc_public_key')) {
+    $modx->log(modX::LOG_LEVEL_INFO, 'Public key file found; moving to root before packaging...');
+    rename($sources['source_core'] . '/.sdc_public_key', $sources['root'] . '.sdc_public_key');
+}
+if (file_exists($sources['source_core'] . '/.sdc_site_key')) {
+    $modx->log(modX::LOG_LEVEL_INFO, 'Site key file found; moving to root before packaging...');
+    rename($sources['source_core'] . '/.sdc_site_key', $sources['root'] . '.sdc_site_key');
+}
 
 
 /* create category */
@@ -199,6 +207,15 @@ $modx->log(modX::LOG_LEVEL_INFO,'Packaged in package attributes.'); flush();
 $modx->log(modX::LOG_LEVEL_INFO,'Packing...'); flush();
 $builder->pack();
 
+if (file_exists($sources['root'] . '.sdc_public_key')) {
+    $modx->log(modX::LOG_LEVEL_INFO, 'Moving public key file back to original position...');
+    rename($sources['root'] . '.sdc_public_key', $sources['source_core'] . '/.sdc_public_key');
+}
+if (file_exists($sources['root'] . '.sdc_site_key')) {
+    $modx->log(modX::LOG_LEVEL_INFO, 'Moving site key file back to original position...');
+    rename($sources['root'] . '.sdc_site_key', $sources['source_core'] . '/.sdc_site_key');
+}
+
 $mtime = microtime();
 $mtime = explode(" ", $mtime);
 $mtime = $mtime[1] + $mtime[0];
@@ -206,5 +223,4 @@ $tend = $mtime;
 $totalTime = ($tend - $tstart);
 $totalTime = sprintf("%2.4f s", $totalTime);
 
-$modx->log(modX::LOG_LEVEL_INFO,"\n<br />Package Built.<br />\nExecution time: {$totalTime}\n");
-
+$modx->log(modX::LOG_LEVEL_INFO,"Package Built. Execution time: {$totalTime}");
