@@ -1,3 +1,5 @@
+- Add session table health check to refresh, and a repair table command
+
 ++ SiteDash Client 0.4.2-pl
 ++ Released on 2018-02-28
 +++++++++++++++++++++++++++

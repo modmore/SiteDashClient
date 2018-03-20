@@ -47,6 +47,7 @@ $params = $modx::sanitize($_POST);
 
 switch ($params['request']) {
     case 'system':
+    case 'system/refresh':
         // Create our data class and run it
         $dataCommand = new \modmore\SiteDashClient\LoadSystemData($modx, $params);
         $data = $dataCommand->run();
@@ -64,6 +65,10 @@ switch ($params['request']) {
         $errorLog->run();
         break;
 
+    case 'system/repairtable':
+        $cmd = new \modmore\SiteDashClient\System\RepairTable($modx, $params);
+        $cmd->run();
+        break;
 }
 @session_write_close();
 exit();

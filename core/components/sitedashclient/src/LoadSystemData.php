@@ -19,6 +19,7 @@ class LoadSystemData implements LoadDataInterface {
         $data['modx'] = $this->getMODXData();
         $data['server'] = $this->getServerInformation();
         $data['packages'] = $this->getPackages();
+        $data['health'] = $this->getHealth();
         return $data;
     }
 
@@ -114,5 +115,24 @@ class LoadSystemData implements LoadDataInterface {
         }
 
         return $data;
+    }
+
+    protected function getHealth()
+    {
+        $health = [
+            'session_table' => true, // assume it's okay if we can't retrieve the status for some reason
+        ];
+
+        $name = $this->modx->getTableName('modSession');
+        if ($statusQuery = $this->modx->query('CHECK TABLE ' . $name)) {
+            $status = $statusQuery->fetchAll(\PDO::FETCH_ASSOC);
+            foreach ($status as $s) {
+                if ($s['Msg_type'] === 'status') {
+                    $health['session_table'] = $s['Msg_text'];
+                }
+            }
+        }
+
+        return $health;
     }
 }
