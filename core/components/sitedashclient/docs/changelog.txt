@@ -1,4 +1,6 @@
-- Add session table health check to refresh, and a repair table command
+- Add session table health check to refresh
+- Add a repair table command to allow the session table, and others, to be remotely repaied
+- Add a database check that looks at all database tables for their status and used collations
 
 ++ SiteDash Client 0.4.2-pl
 ++ Released on 2018-02-28

@@ -65,6 +65,10 @@ switch ($params['request']) {
         $errorLog->run();
         break;
 
+    case 'system/databasecheck':
+        $cmd = new \modmore\SiteDashClient\System\DatabaseCheck($modx);
+        $cmd->run();
+        break;
     case 'system/repairtable':
         $cmd = new \modmore\SiteDashClient\System\RepairTable($modx, $params['params']);
         $cmd->run();
