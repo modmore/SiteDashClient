@@ -119,18 +119,16 @@ class LoadSystemData implements LoadDataInterface {
 
     protected function getHealth()
     {
-        $health = [
-            'session_table' => true, // assume it's okay if we can't retrieve the status for some reason
-        ];
+        $health = [];
 
         $name = $this->modx->getTableName('modSession');
         if ($statusQuery = $this->modx->query('CHECK TABLE ' . $name)) {
             $status = $statusQuery->fetchAll(\PDO::FETCH_ASSOC);
+            $i = [];
             foreach ($status as $s) {
-                if ($s['Msg_type'] === 'status') {
-                    $health['session_table'] = $s['Msg_text'];
-                }
+                $i[$s['Msg_type']] = $s['Msg_text'];
             }
+            $health['session_table'] = json_encode($i);
         }
 
         return $health;

@@ -61,12 +61,12 @@ switch ($params['request']) {
         break;
 
     case 'errorlog':
-        $errorLog = new \modmore\SiteDashClient\DownloadErrorLog($modx, $params);
+        $errorLog = new \modmore\SiteDashClient\DownloadErrorLog($modx);
         $errorLog->run();
         break;
 
     case 'system/repairtable':
-        $cmd = new \modmore\SiteDashClient\System\RepairTable($modx, $params);
+        $cmd = new \modmore\SiteDashClient\System\RepairTable($modx, $params['params']);
         $cmd->run();
         break;
 }
