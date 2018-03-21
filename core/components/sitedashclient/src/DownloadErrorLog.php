@@ -4,12 +4,10 @@ namespace modmore\SiteDashClient;
 
 class DownloadErrorLog implements LoadDataInterface {
     protected $modx;
-    protected $params = array();
 
-    public function __construct(\modX $modx, array $params)
+    public function __construct(\modX $modx)
     {
         $this->modx = $modx;
-        $this->params = $params;
     }
 
     public function run()
