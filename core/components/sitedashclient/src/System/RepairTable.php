@@ -22,7 +22,7 @@ class RepairTable implements LoadDataInterface {
         $name = $this->modx->getTableName($class);
         if (!$name) {
             // .. or use the class as if it were the table name
-            $name = $this->modx->quote($class);
+            $name = '`' . str_replace('`', '``', $class) . '`';
         }
 
         if ($statusQuery = $this->modx->query('REPAIR TABLE ' . $name)) {
@@ -39,7 +39,7 @@ class RepairTable implements LoadDataInterface {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => 'Could not find the requested table.'
+            'message' => 'Error preparing repair table query for ' . $name,
         ], JSON_PRETTY_PRINT);
     }
 }
