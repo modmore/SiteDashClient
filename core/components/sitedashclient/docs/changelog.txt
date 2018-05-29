@@ -1,5 +1,5 @@
 ++ SiteDash Client 0.5.0-pl
-++ Released on 2018-03-
+++ Released on 2018-05-29
 +++++++++++++++++++++++++++
 - Add session table health check to refresh
 - Add a repair table command to allow the session table, and others, to be remotely repaired from SiteDash
