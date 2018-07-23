@@ -105,7 +105,7 @@ class Update implements LoadDataInterface
                 'location' => (string)$package['location'],
                 'signature' => (string)$package['signature']
             ];
-            $this->log[] = 'Loaded available package option: ' . (string)$package['signature'];
+            $this->log('Available version(s) to update to: ' . (string)$package['signature']);
         }
 
 //        if (count($options) !== 1) {
@@ -113,7 +113,7 @@ class Update implements LoadDataInterface
 //        }
 
         $opt = reset($options);
-        $this->log[] = 'Setting upgrade target to ' . $opt['signature'];
+        $this->log('Attempting update to: ' . $opt['signature']);
         $this->_signature = $opt['signature'];
         $this->_location = $opt['location'];
     }
