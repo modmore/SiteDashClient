@@ -73,6 +73,12 @@ switch ($params['request']) {
         $cmd = new \modmore\SiteDashClient\System\RepairTable($modx, $params['params']);
         $cmd->run();
         break;
+
+    case 'package/update':
+        $package = isset($params['params']['package']) && !empty($params['params']['package']) ? (string)$params['params']['package'] : '';
+        $cmd = new \modmore\SiteDashClient\Package\Update($modx, $package);
+        $cmd->run();
+        break;
 }
 @session_write_close();
 exit();
