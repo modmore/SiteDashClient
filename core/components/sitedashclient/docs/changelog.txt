@@ -1,3 +1,5 @@
+- Prevent E_WARN getting logged to the error log if disk_free_space or disk_total_space is in the disabled functions
+
 ++ SiteDash Client 0.5.0-pl
 ++ Released on 2018-05-29
 +++++++++++++++++++++++++++

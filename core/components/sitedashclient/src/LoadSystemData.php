@@ -60,8 +60,8 @@ class LoadSystemData implements LoadDataInterface {
             $data['pdo_server_version'] = $pdoInstance->getAttribute(\PDO::ATTR_SERVER_VERSION);
         }
 
-        $data['disk_free_space'] = disk_free_space(MODX_BASE_PATH);
-        $data['disk_total_space'] = disk_total_space(MODX_BASE_PATH);
+        $data['disk_free_space'] = @disk_free_space(MODX_BASE_PATH);
+        $data['disk_total_space'] = @disk_total_space(MODX_BASE_PATH);
         $data['memory_limit'] = ini_get('memory_limit');
         $data['max_execution_time'] = ini_get('max_execution_time');
         
