@@ -1,3 +1,9 @@
+SiteDash Client 0.6.0-rc2
+------------------------
+Released on 2018-07-24
+
+- Test release.
+
 SiteDash Client 0.6.0-rc1
 ------------------------
 Released on 2018-07-24
