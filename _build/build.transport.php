@@ -23,7 +23,7 @@ if (!defined('MOREPROVIDER_BUILD')) {
     /* define version */
     define('PKG_NAME','SiteDashClient');
     define('PKG_NAME_LOWER',strtolower(PKG_NAME));
-    define('PKG_VERSION','0.5.0');
+    define('PKG_VERSION','0.6.0');
     define('PKG_RELEASE','pl');
 
     /* load modx */
