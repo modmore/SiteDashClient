@@ -1,8 +1,8 @@
-SiteDash Client 0.6.0-rc2
+SiteDash Client 0.6.0-pl
 ------------------------
 Released on 2018-07-24
 
-- Test release.
+- Public release. Can update itself, too!
 
 SiteDash Client 0.6.0-rc1
 ------------------------
