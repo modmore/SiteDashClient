@@ -1,3 +1,5 @@
+- Make sure that packages have their names normalised when being loaded to fix inconsistencies
+
 SiteDash Client 0.6.0-pl
 ------------------------
 Released on 2018-07-24

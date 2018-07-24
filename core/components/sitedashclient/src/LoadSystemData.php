@@ -95,6 +95,7 @@ class LoadSystemData implements LoadDataInterface {
         /** @var \modTransportPackage $package */
         foreach ($this->modx->getIterator('transport.modTransportPackage') as $package) {
             $name = $package->get('package_name');
+            $name = strtolower($name);
             if (!array_key_exists($name, $data['packages'])) {
                 $data['packages'][$name] = [];
             }
