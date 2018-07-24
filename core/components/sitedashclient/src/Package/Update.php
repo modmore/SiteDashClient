@@ -27,8 +27,9 @@ class Update implements LoadDataInterface
     public function run()
     {
         $logs = [];
+        $this->modx->setLogLevel(\modX::LOG_LEVEL_INFO);
         $this->modx->setLogTarget([
-            'target' => 'ARRAY',
+            'target' => 'ARRAY_EXTENDED',
             'options' => [
                 'var' => &$logs,
             ]
@@ -38,11 +39,8 @@ class Update implements LoadDataInterface
             $this->download();
             $this->install();
         } catch (\Exception $e) {
-            // Copy MODX Logs into the logs array
-            foreach ($logs as $log) {
-                $this->log($log);
-            }
-            $this->log('[' . get_class($e) . '] ' . $e->getMessage());
+            $this->_copyLogs($logs);
+            $this->log('[ERROR] ' . $e->getMessage());
             http_response_code(503);
             echo json_encode([
                 'success' => false,
@@ -52,10 +50,7 @@ class Update implements LoadDataInterface
             exit();
         }
 
-        // Copy MODX Logs into the logs array
-        foreach ($logs as $log) {
-            $this->log($log);
-        }
+        $this->_copyLogs($logs);
         $return = [
             'success' => true,
             'signature' => $this->_signature,
@@ -78,6 +73,7 @@ class Update implements LoadDataInterface
         if (!$this->package instanceof \modTransportPackage) {
             throw new \RuntimeException('Package does not seem to be installed; can only update packages that are already installed.');
         }
+        $this->log('Found package ' . $this->package->get('signature'));
 
         $this->provider =& $this->package->getOne('Provider');
         if (!$this->provider instanceof \modTransportProvider) {
@@ -87,15 +83,15 @@ class Update implements LoadDataInterface
         if ($un !== '') {
             $un = ' as ' . $un;
         }
-        $this->log('Using provider ' . $this->provider->get('name') . $un);
+        $this->log('Checking provider ' . $this->provider->get('name') . $un . ' for available updates');
 
         $packages = $this->provider->latest($this->packageSignature);
         if (is_string($packages)) {
-            throw new \RuntimeException('Received check for update error: ' . htmlentities($packages));
+            throw new \RuntimeException('Received error when checking for updates: ' . htmlentities($packages));
         }
 
         if (count($packages) < 1) {
-            throw new \RuntimeException('No updates available.');
+            throw new \RuntimeException('No updates available from chosen package provider. Perhaps an update is available from another provider, or there is a license problem?');
         }
 
         $options = array();
@@ -105,7 +101,7 @@ class Update implements LoadDataInterface
                 'location' => (string)$package['location'],
                 'signature' => (string)$package['signature']
             ];
-            $this->log('Available version(s) to update to: ' . (string)$package['signature']);
+            $this->log('Available version: ' . (string)$package['signature']);
         }
 
 //        if (count($options) !== 1) {
@@ -113,7 +109,9 @@ class Update implements LoadDataInterface
 //        }
 
         $opt = reset($options);
-        $this->log('Attempting update to: ' . $opt['signature']);
+        if (count($options) > 1) {
+            $this->log('Updating to: ' . $opt['signature']);
+        }
         $this->_signature = $opt['signature'];
         $this->_location = $opt['location'];
     }
@@ -151,5 +149,19 @@ class Update implements LoadDataInterface
             'timestamp' => time(),
             'message' => $msg,
         ];
+    }
+
+    /**
+     * Copies logs received from the MODX log handler into the log format the server expects
+     *
+     * @param $logs
+     */
+    private function _copyLogs(array $logs)
+    {
+        foreach ($logs as $log) {
+            $msg = $log['msg'];
+            $msg = str_replace([MODX_CORE_PATH, MODX_BASE_PATH], ['{core_path}', '{base_path}'], $msg);
+            $this->log("[{$log['level']}] {$msg}");
+        }
     }
 }
