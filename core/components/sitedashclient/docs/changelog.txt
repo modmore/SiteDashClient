@@ -1,5 +1,6 @@
 - Make sure that packages have their names normalised when being loaded to fix inconsistencies
 - Update default server url to the new SiteDash.app domain
+- Now also reports the core path, base url/path and connectors url/path
 
 SiteDash Client 0.6.0-pl
 ------------------------

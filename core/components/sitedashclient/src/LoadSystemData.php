@@ -31,6 +31,11 @@ class LoadSystemData implements LoadDataInterface {
         $data['manager_url'] = $this->modx->getOption('manager_url');
         $data['core_outside_root'] = strpos(MODX_CORE_PATH, MODX_BASE_PATH) === false;
         $data['core_folder'] = $data['core_outside_root'] ? false : substr(MODX_CORE_PATH, strlen(MODX_BASE_PATH));
+        $data['core_path'] = MODX_CORE_PATH;
+        $data['base_path'] = MODX_BASE_PATH;
+        $data['base_url'] = MODX_BASE_URL;
+        $data['connectors_path'] = MODX_CONNECTORS_PATH;
+        $data['connectors_url'] = MODX_CONNECTORS_URL;
         $data['manager_language'] = $this->modx->getOption('manager_language');
         $data['which_editor'] = $this->modx->getOption('which_editor');
         $errorFile = $this->modx->getOption('cache_path') . 'logs/error.log';
