@@ -1,3 +1,7 @@
+SiteDash Client 0.7.0-pl
+------------------------
+Released on 2018-08-02
+
 - Make sure that packages have their names normalised when being loaded to fix inconsistencies
 - Update default server url to the new SiteDash.app domain
 - Now also reports the core path, base url/path and connectors url/path
