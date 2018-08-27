@@ -79,6 +79,16 @@ switch ($params['request']) {
         $cmd = new \modmore\SiteDashClient\Package\Update($modx, $package);
         $cmd->run();
         break;
+
+    default:
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'data' => [
+                'message' => 'Unsupported request.'
+            ]
+        ], JSON_PRETTY_PRINT);
+        break;
 }
 @session_write_close();
 exit();
