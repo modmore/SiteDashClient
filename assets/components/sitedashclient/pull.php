@@ -84,9 +84,7 @@ switch ($params['request']) {
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'data' => [
-                'message' => 'Unsupported request.'
-            ]
+            'message' => 'Unsupported request.'
         ], JSON_PRETTY_PRINT);
         break;
 }
