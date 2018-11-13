@@ -69,8 +69,14 @@ switch ($params['request']) {
         $cmd = new \modmore\SiteDashClient\System\DatabaseCheck($modx);
         $cmd->run();
         break;
+
     case 'system/repairtable':
         $cmd = new \modmore\SiteDashClient\System\RepairTable($modx, $params['params']);
+        $cmd->run();
+        break;
+
+    case 'system/files':
+        $cmd = new \modmore\SiteDashClient\System\Files($modx, $params['params']);
         $cmd->run();
         break;
 
