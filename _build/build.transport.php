@@ -23,8 +23,8 @@ if (!defined('MOREPROVIDER_BUILD')) {
     /* define version */
     define('PKG_NAME','SiteDashClient');
     define('PKG_NAME_LOWER',strtolower(PKG_NAME));
-    define('PKG_VERSION','0.7.0');
-    define('PKG_RELEASE','pl');
+    define('PKG_VERSION','1.0.0');
+    define('PKG_RELEASE','dev1');
 
     /* load modx */
     require_once dirname(dirname(__FILE__)) . '/config.core.php';
