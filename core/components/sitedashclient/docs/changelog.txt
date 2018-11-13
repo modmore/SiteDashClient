@@ -1,5 +1,6 @@
 - Make sure invalid requests still return a valid JSON response
 - Add file hasher to use for validating upgrades and for keeping an eye on files changing unexpectedly
+- Add backup command to create a local backup of the database and critical files
 
 SiteDash Client 0.7.0-pl
 ------------------------

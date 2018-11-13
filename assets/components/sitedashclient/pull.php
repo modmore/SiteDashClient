@@ -86,6 +86,12 @@ switch ($params['request']) {
         $cmd->run();
         break;
 
+
+    case 'upgrade/backup':
+        $cmd = new \modmore\SiteDashClient\Upgrade\Backup($modx);
+        $cmd->run();
+        break;
+
     default:
         http_response_code(400);
         echo json_encode([
