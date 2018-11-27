@@ -1,7 +1,12 @@
+SiteDash Client 1.0.0-rc1
+-------------------------
+Released on 2018-11-27
+
 - First beta version of upgrading the MODX core!
 - Make sure invalid requests still return a valid JSON response
 - Add file hasher to use for validating upgrades and for keeping an eye on files changing unexpectedly
 - Add backup command to create a local backup of the database and critical files
+- Settings for PHP and mysqldump binaries to use
 
 SiteDash Client 0.7.0-pl
 ------------------------

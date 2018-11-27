@@ -24,7 +24,7 @@ if (!defined('MOREPROVIDER_BUILD')) {
     define('PKG_NAME','SiteDashClient');
     define('PKG_NAME_LOWER',strtolower(PKG_NAME));
     define('PKG_VERSION','1.0.0');
-    define('PKG_RELEASE','dev1');
+    define('PKG_RELEASE','rc1');
 
     /* load modx */
     require_once dirname(dirname(__FILE__)) . '/config.core.php';
@@ -139,19 +139,19 @@ $modx->log(modX::LOG_LEVEL_INFO,'Packaged in category.'); flush();
 
 
 /* Settings */
-//$settings = include_once $sources['data'].'transport.settings.php';
-//$attributes= array(
-//    xPDOTransport::UNIQUE_KEY => 'key',
-//    xPDOTransport::PRESERVE_KEYS => true,
-//    xPDOTransport::UPDATE_OBJECT => false,
-//);
-//if (!is_array($settings)) { $modx->log(modX::LOG_LEVEL_FATAL,'Adding settings failed.'); }
-//foreach ($settings as $setting) {
-//    $vehicle = $builder->createVehicle($setting,$attributes);
-//    $builder->putVehicle($vehicle);
-//}
-//$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($settings).' system settings.'); flush();
-//unset($settings,$setting,$attributes);
+$settings = include $sources['data'].'transport.settings.php';
+$attributes= array(
+    xPDOTransport::UNIQUE_KEY => 'key',
+    xPDOTransport::PRESERVE_KEYS => true,
+    xPDOTransport::UPDATE_OBJECT => false,
+);
+if (!is_array($settings)) { $modx->log(modX::LOG_LEVEL_FATAL,'Adding settings failed.'); }
+foreach ($settings as $setting) {
+    $vehicle = $builder->createVehicle($setting,$attributes);
+    $builder->putVehicle($vehicle);
+}
+$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($settings).' system settings.'); flush();
+unset($settings,$setting,$attributes);
 
 
 
