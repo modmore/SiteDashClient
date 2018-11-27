@@ -92,6 +92,13 @@ switch ($params['request']) {
         $cmd->run();
         break;
 
+    case 'upgrade/execute':
+        $backupDir = isset($params['params']['backup']) && !empty($params['params']['backup']) ? (string)$params['params']['backup'] : '';
+        $targetVersion = isset($params['params']['target_version']) && !empty($params['params']['target_version']) ? (string)$params['params']['target_version'] : false;
+        $cmd = new \modmore\SiteDashClient\Upgrade\Execute($modx, $backupDir, $targetVersion);
+        $cmd->run();
+        break;
+
     default:
         http_response_code(400);
         echo json_encode([
@@ -102,6 +109,3 @@ switch ($params['request']) {
 }
 @session_write_close();
 exit();
-
-
-
