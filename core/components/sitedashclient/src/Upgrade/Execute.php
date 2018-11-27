@@ -247,7 +247,9 @@ class Execute implements LoadDataInterface {
 
         $tz = escapeshellarg(date_default_timezone_get());
         $wd = MODX_BASE_PATH;
-        $cmd = "{$phpExecutable} -d date.timezone={$tz} {$wd}setup/index.php --installmode=upgrade --config={$configFile}";
+        $corePath = MODX_CORE_PATH;
+        $configKey = MODX_CONFIG_KEY;
+        $cmd = "{$phpExecutable} -d date.timezone={$tz} {$wd}setup/index.php --installmode=upgrade --config={$configFile} --core_path={$corePath} --config_key={$configKey}";
         $cmd = escapeshellcmd($cmd);
 
 
