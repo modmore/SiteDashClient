@@ -1,10 +1,11 @@
 <?php
+ini_set('display_errors', 1);
 /* Get the core config */
 if (!file_exists(dirname(dirname(__FILE__)).'/config.core.php')) {
-    die('ERROR: missing '.dirname(dirname(__FILE__)).'/config.core.php file defining the MODX core path.');
+    echo 'ERROR: missing '.dirname(dirname(__FILE__)).'/config.core.php file defining the MODX core path.';
+    exit(1);
 }
 
-echo "<pre>";
 /* Boot up MODX */
 echo "Loading modX...\n";
 require_once dirname(dirname(__FILE__)).'/config.core.php';
