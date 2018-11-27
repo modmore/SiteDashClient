@@ -52,14 +52,13 @@ class Backup implements LoadDataInterface {
         $database_password = str_replace("'", '\'', $database_password);
         $password_parameter = '';
         if ($database_password !== '') {
-            $database_password = escapeshellarg($database_password);
-            $password_parameter = "-p{$database_password}";
+            $password_parameter = "-p'{$database_password}'";
         }
 
         $targetFile = $this->targetDirectory . $dbase . '.sql';
         $mysqldump = $this->modx->getOption('sitedashclient.mysqldump_binary', null, 'mysqldump', true);
-        $cmd = "{$mysqldump} -u {$database_user} {$password_parameter} -h {$database_server} {$dbase}";
-        $cmd = escapeshellcmd($cmd) . " > {$targetFile}";
+        $cmd = "{$mysqldump} -u{$database_user} {$password_parameter} -h {$database_server} {$dbase}";
+        $cmd .= " > {$targetFile}";
 
         exec($cmd, $output, $return);
         if (!file_exists($targetFile) || filesize($targetFile) < 150 * 1024) { // a clean install is ~ 200kb, so we ask for at least 150

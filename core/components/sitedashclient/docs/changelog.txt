@@ -1,3 +1,5 @@
+- Loosen shell escaping to prevent issues with complex passwords not working for the backup
+
 SiteDash Client 1.0.0-rc1
 -------------------------
 Released on 2018-11-27
