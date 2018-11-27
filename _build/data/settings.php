@@ -7,7 +7,6 @@ return array(
 
     'php_binary' => array(
         'area' => 'executables',
-        'value' => 1,
-        'xtype' => 'modx-combo-source'
+        'value' => 'php',
     ),
 );

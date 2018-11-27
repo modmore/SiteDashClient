@@ -1,4 +1,5 @@
 - Loosen shell escaping to prevent issues with complex passwords not working for the backup
+- Fix incorrect default for sitedashclient.php_binary setting
 
 SiteDash Client 1.0.0-rc1
 -------------------------
