@@ -1,3 +1,7 @@
+SiteDash Client 1.0.0-rc2
+-------------------------
+Released on 2018-11-27
+
 - Loosen shell escaping to prevent issues with complex passwords not working for the backup
 - Fix incorrect default for sitedashclient.php_binary setting
 - Fix upgrade on advanced distributions where the core folder has been moved or a custom config key is used
