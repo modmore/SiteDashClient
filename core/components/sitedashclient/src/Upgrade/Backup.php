@@ -52,15 +52,17 @@ class Backup implements LoadDataInterface {
         $database_password = str_replace("'", '\'', $database_password);
         $password_parameter = '';
         if ($database_password !== '') {
-            $password_parameter = "-p'{$database_password}'";
+            $database_password = escapeshellarg($database_password);
+            $password_parameter = "-p{$database_password}";
         }
 
         $targetFile = $this->targetDirectory . $dbase . '.sql';
         $mysqldump = $this->modx->getOption('sitedashclient.mysqldump_binary', null, 'mysqldump', true);
-        $cmd = "{$mysqldump} -u {$database_user} {$password_parameter} -h {$database_server} {$dbase} > {$targetFile} ";
+        $cmd = "{$mysqldump} -u {$database_user} {$password_parameter} -h {$database_server} {$dbase}";
+        $cmd = escapeshellcmd($cmd) . " > {$targetFile}";
 
         exec($cmd, $output, $return);
-        if (!file_exists($targetFile) || filesize($targetFile) < 1024 * 1024) {
+        if (!file_exists($targetFile) || filesize($targetFile) < 150 * 1024) { // a clean install is ~ 200kb, so we ask for at least 150
             http_response_code(503);
 
             if ($return === 127) {
@@ -74,7 +76,7 @@ class Backup implements LoadDataInterface {
 
             echo json_encode([
                 'success' => false,
-                'message' => 'Failed to create MySQL backup',
+                'message' => 'Received exit code ' . $return . ' trying to create a database backup.',
                 'output' => implode("\n", $output),
                 'return' => $return,
             ], JSON_PRETTY_PRINT);
