@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'modmore\\SiteDashClient\\' => array($baseDir . '/src'),
+    'Symfony\\Component\\Process\\' => array($vendorDir . '/symfony/process'),
 );

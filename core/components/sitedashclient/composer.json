@@ -6,7 +6,10 @@
             "email": "hello@markhamstra.com"
         }
     ],
-    "require": {},
+    "require": {
+        "php": ">=5.5",
+        "symfony/process": "^4.1"
+    },
     "autoload": {
         "psr-4": {
             "modmore\\SiteDashClient\\": "src/"

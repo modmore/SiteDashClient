@@ -3,6 +3,7 @@
 namespace modmore\SiteDashClient\Upgrade;
 
 use modmore\SiteDashClient\LoadDataInterface;
+use Symfony\Component\Process\Process;
 
 class Backup implements LoadDataInterface {
     protected $modx;

@@ -11,12 +11,20 @@ class ComposerStaticInitaff5197c763d13f514a30dee248da7e0
         array (
             'modmore\\SiteDashClient\\' => 23,
         ),
+        'S' => 
+        array (
+            'Symfony\\Component\\Process\\' => 26,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'modmore\\SiteDashClient\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
+        ),
+        'Symfony\\Component\\Process\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/process',
         ),
     );
 

@@ -3,6 +3,8 @@
 namespace modmore\SiteDashClient\Upgrade;
 
 use modmore\SiteDashClient\LoadDataInterface;
+use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
 
 class Execute implements LoadDataInterface {
     protected $modx;
@@ -46,31 +48,23 @@ class Execute implements LoadDataInterface {
         $this->log('Need to revert the upgrade? A backup of the database and files are stored in:' . str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory));
 
         $this->log('Testing access to PHP executable...');
-        $phpExecutable = $this->modx->getOption('sitedashclient.php_binary', null, 'php', true);
-        $cmd = "{$phpExecutable} --version";
-        $cmd = escapeshellcmd($cmd);
-        exec($cmd, $output, $return);
-        if ($return === 127) {
+
+        $phpBinaryFinder = new PhpExecutableFinder();
+        $phpExecutable = $phpBinaryFinder->find();
+        $process = new Process([$phpExecutable, '--version']);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
             http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'message' => 'Command "' . $cmd .'" returned code ' . $return . ', please configure the sitedashclient.php_binary to point to the proper PHP executable.',
-                'output' => implode("\n", $output),
-            ], JSON_PRETTY_PRINT);
-            return;
-        }
-        if ($return !== 0) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Command "' . $cmd .'" returned unexpected code ' . $return . ' with output ' . implode("\n", $output) . ', please configure the sitedashclient.php_binary to point to the proper PHP executable.',
-                'output' => implode("\n", $output),
+                'message' => 'Received an error checking the PHP version with command: ' . $process->getCommandLine(),
+                'output' => $process->getOutput() . '/' . $process->getErrorOutput(),
             ], JSON_PRETTY_PRINT);
             return;
         }
 
-        $this->log('PHP Version: ' . implode("\n", $output));
-
+        $this->log('PHP Version: ' . $process->getOutput());
 
         $downloadTarget = $this->backupDirectory . 'download/';
         $this->createDirectory($downloadTarget);
@@ -80,7 +74,7 @@ class Execute implements LoadDataInterface {
         $fp = fopen ($zipTarget, 'w+');
         $ch = curl_init($this->downloadUrl);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
         curl_setopt($ch, CURLOPT_FILE, $fp);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_exec($ch);
@@ -241,42 +235,36 @@ class Execute implements LoadDataInterface {
         $xml->appendChild($modx);
 
         $configFile = $this->backupDirectory . 'modx-setup.xml';
-        $fh = fopen($configFile, 'w+');
+        $fh = fopen($configFile, 'wb+');
         fwrite($fh, $xml->saveXML());
         fclose($fh);
 
-        $tz = escapeshellarg(date_default_timezone_get());
+        $tz = date_default_timezone_get();
         $wd = MODX_BASE_PATH;
         $corePath = MODX_CORE_PATH;
         $configKey = MODX_CONFIG_KEY;
-        $cmd = "{$phpExecutable} -d date.timezone={$tz} {$wd}setup/index.php --installmode=upgrade --config={$configFile} --core_path={$corePath} --config_key={$configKey}";
-        $cmd = escapeshellcmd($cmd);
+
+        $setupProcess = new Process([
+            $phpExecutable,
+            "-d date.timezone={$tz}",
+            "{$wd}setup/index.php",
+            '--installmode=upgrade',
+            "--config={$configFile}",
+            "--core_path={$corePath}",
+            "--config_key={$configKey}",
+        ]);
 
 
-        $this->log('Running setup with command: ' . $cmd);
+        $this->log('Running setup with command: ' . $setupProcess->getCommandLine());
 
-        exec($cmd, $output, $return);
-
-        if ($return === 0) {
-            $this->log('Successfully executed the setup. ' . implode("\n", $output));
+        $setupProcess->run();
+        if ($setupProcess->isSuccessful()) {
+            $this->log('Successfully executed the setup. ' . $setupProcess->getOutput());
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'output' => implode("\n", $output),
-                'return' => $return,
-                'backupDirectory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory),
-                'downloadUrl' => $this->downloadUrl,
-                'modxDownload' => str_replace(MODX_CORE_PATH, '{core_path}', $zipTarget),
-                'logs' => $this->logs,
-            ], JSON_PRETTY_PRINT);
-            return;
-        }
-
-        if ($return === 127) {
-            http_response_code(501);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Could not find the php binary to execute the setup, please configure the sitedashclient.php_binary system setting to continue.',
+                'output' => $setupProcess->getOutput(),
+                'return' => $setupProcess->getExitCode(),
                 'backupDirectory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory),
                 'downloadUrl' => $this->downloadUrl,
                 'modxDownload' => str_replace(MODX_CORE_PATH, '{core_path}', $zipTarget),
@@ -288,7 +276,9 @@ class Execute implements LoadDataInterface {
         http_response_code(501);
         echo json_encode([
             'success' => false,
-            'message' => 'Received status code ' . $return . ' running the setup. Output: ' . implode("\n", $output),
+            'message' => 'Received exit code ' . $setupProcess->getExitCode() . ' running the setup with error: ' . $setupProcess->getErrorOutput(),
+            'output' => $setupProcess->getOutput(),
+            'error_output' => $setupProcess->getErrorOutput(),
             'backupDirectory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory),
             'downloadUrl' => $this->downloadUrl,
             'modxDownload' => str_replace(MODX_CORE_PATH, '{core_path}', $zipTarget),
