@@ -1,4 +1,5 @@
 - If the php executable can't automatically be determined, use simply php and assume it's available
+- Check if the exec() function is available before trying the backup
 
 SiteDash Client 1.0.0-rc3
 -------------------------

@@ -39,6 +39,16 @@ class Backup implements LoadDataInterface {
 
     public function run()
     {
+        if (!function_exists('exec')) {
+            http_response_code(503);
+            echo json_encode([
+                'success' => false,
+                'message' => 'The exec() function is disabled on your server, cannot continue.',
+                'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory)
+            ], JSON_PRETTY_PRINT);
+            return;
+        }
+
         /**
          * Include the config file to access the database information
          *
