@@ -51,6 +51,9 @@ class Execute implements LoadDataInterface {
 
         $phpBinaryFinder = new PhpExecutableFinder();
         $phpExecutable = $phpBinaryFinder->find();
+        if (!$phpExecutable) {
+            $phpExecutable = 'php';
+        }
         $process = new Process([$phpExecutable, '--version']);
         $process->run();
 

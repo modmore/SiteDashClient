@@ -1,3 +1,5 @@
+- If the php executable can't automatically be determined, use simply php and assume it's available
+
 SiteDash Client 1.0.0-rc3
 -------------------------
 Released on 2018-11-28
