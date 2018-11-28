@@ -3,7 +3,7 @@
 namespace modmore\SiteDashClient\Upgrade;
 
 use modmore\SiteDashClient\LoadDataInterface;
-use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ExecutableFinder;
 
 class Backup implements LoadDataInterface {
     protected $modx;
@@ -67,7 +67,11 @@ class Backup implements LoadDataInterface {
         }
 
         $targetFile = $this->targetDirectory . $dbase . '.sql';
-        $mysqldump = $this->modx->getOption('sitedashclient.mysqldump_binary', null, 'mysqldump', true);
+        $finder = new ExecutableFinder();
+        $mysqldump = $finder->find('mysqldump');
+        if ($mysqldump === null) {
+            $mysqldump = $this->modx->getOption('sitedashclient.mysqldump_binary', null, 'mysqldump', true);
+        }
         $cmd = "{$mysqldump} -u{$database_user} {$password_parameter} -h {$database_server} {$dbase}";
         $cmd .= " > {$targetFile}";
 
@@ -79,14 +83,16 @@ class Backup implements LoadDataInterface {
                 echo json_encode([
                     'success' => false,
                     'message' => 'Could not find the mysqldump program on your server; please configure the sitedashclient.mysqldump_binary system setting to point to mysqldump to create backups.',
-                    'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory)
+                    'binary' => $mysqldump,
+                    'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory),
+                    'output' => implode("\n", $output),
                 ], JSON_PRETTY_PRINT);
                 return;
             }
 
             echo json_encode([
                 'success' => false,
-                'message' => 'Received exit code ' . $return . ' trying to create a database backup.',
+                'message' => 'Received exit code ' . $return . ' trying to create a database backup using ' . $mysqldump,
                 'output' => implode("\n", $output),
                 'return' => $return,
             ], JSON_PRETTY_PRINT);
@@ -115,7 +121,8 @@ class Backup implements LoadDataInterface {
         http_response_code(200);
         echo json_encode([
             'success' => true,
-            'directory' => str_replace(MODX_CORE_PATH, '', $this->targetDirectory)
+            'directory' => str_replace(MODX_CORE_PATH, '', $this->targetDirectory),
+            'output' => implode("\n", $output),
         ], JSON_PRETTY_PRINT);
     }
 

@@ -1,3 +1,4 @@
+- Try to automatically find the mysqldump executable before accepting the mysqldump_binary setting
 - If the php executable can't automatically be determined, use simply php and assume it's available
 - Check if the exec() function is available before trying the backup
 
