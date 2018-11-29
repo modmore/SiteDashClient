@@ -24,7 +24,7 @@ if (!defined('MOREPROVIDER_BUILD')) {
     define('PKG_NAME','SiteDashClient');
     define('PKG_NAME_LOWER',strtolower(PKG_NAME));
     define('PKG_VERSION','1.0.0');
-    define('PKG_RELEASE','rc3');
+    define('PKG_RELEASE','rc4');
 
     /* load modx */
     require_once dirname(dirname(__FILE__)) . '/config.core.php';
