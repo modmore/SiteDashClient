@@ -1,3 +1,5 @@
+- Add check for the proc_get_status function; without it, we can't check the status of the executed command
+
 SiteDash Client 1.0.0-pl
 -------------------------
 Released on 2018-12-10

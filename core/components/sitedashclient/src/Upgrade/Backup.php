@@ -49,6 +49,15 @@ class Backup implements LoadDataInterface {
             ], JSON_PRETTY_PRINT);
             return;
         }
+        if (!function_exists('proc_get_status')) {
+            http_response_code(503);
+            echo json_encode([
+                'success' => false,
+                'message' => 'The proc_get_status() function is disabled on your server. This is required to allow the status of the backup to be checked.',
+                'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory)
+            ], JSON_PRETTY_PRINT);
+            return;
+        }
 
         /**
          * Include the config file to access the database information
