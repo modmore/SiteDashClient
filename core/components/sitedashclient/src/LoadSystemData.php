@@ -34,6 +34,7 @@ class LoadSystemData implements LoadDataInterface {
         $data['core_path'] = MODX_CORE_PATH;
         $data['base_path'] = MODX_BASE_PATH;
         $data['base_url'] = MODX_BASE_URL;
+        $data['assets_url'] = MODX_ASSETS_URL;
         $data['connectors_path'] = MODX_CONNECTORS_PATH;
         $data['connectors_url'] = MODX_CONNECTORS_URL;
         $data['manager_language'] = $this->modx->getOption('manager_language');

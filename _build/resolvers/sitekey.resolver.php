@@ -20,7 +20,7 @@ if (!$server) {
     return false;
 }
 
-$url = $server . '/api/site/' . $siteKey . '/authenticate?domain=' . urlencode($modx->getOption('http_host'));
+$url = $server . '/api/site/' . $siteKey . '/authenticate?domain=' . urlencode($modx->getOption('http_host')) . '&assets_url=' . urlencode($modx->getOption('assets_url'));
 
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);

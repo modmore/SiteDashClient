@@ -1,4 +1,5 @@
 - Downgrade symfony/process to 3.4.20 to support PHP 5.5.9+
+- Provide the server with the assets_url to automatically support non-standard assets directories
 
 SiteDash Client 1.0.0-rc4
 -------------------------
