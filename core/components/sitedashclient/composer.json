@@ -8,7 +8,12 @@
     ],
     "require": {
         "php": ">=5.5",
-        "symfony/process": "^4.1"
+        "symfony/process": "^3"
+    },
+    "config": {
+        "platform": {
+            "php": "5.5.9"
+        }
     },
     "autoload": {
         "psr-4": {

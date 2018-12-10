@@ -1,3 +1,5 @@
+- Downgrade symfony/process to 3.4.20 to support PHP 5.5.9+
+
 SiteDash Client 1.0.0-rc4
 -------------------------
 Released on 2018-11-29
