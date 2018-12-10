@@ -90,6 +90,7 @@ class Backup implements LoadDataInterface {
 
         $backupProcess->run();
         if (!$backupProcess->isSuccessful()) {
+            http_response_code(503);
             $code = $backupProcess->getExitCode();
             if ($code === 127) {
                 echo json_encode([
