@@ -4,6 +4,7 @@ namespace modmore\SiteDashClient\Upgrade;
 
 use modmore\SiteDashClient\LoadDataInterface;
 use Symfony\Component\Process\ExecutableFinder;
+use Symfony\Component\Process\Process;
 
 class Backup implements LoadDataInterface {
     protected $modx;
@@ -39,11 +40,11 @@ class Backup implements LoadDataInterface {
 
     public function run()
     {
-        if (!function_exists('exec')) {
+        if (!function_exists('proc_open')) {
             http_response_code(503);
             echo json_encode([
                 'success' => false,
-                'message' => 'The exec() function is disabled on your server, cannot continue.',
+                'message' => 'The proc_open() function is disabled on your server. This is required for the backup to run.',
                 'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory)
             ], JSON_PRETTY_PRINT);
             return;
@@ -75,26 +76,41 @@ class Backup implements LoadDataInterface {
         $cmd = "{$mysqldump} -u{$database_user} {$password_parameter} -h {$database_server} {$dbase}";
         $cmd .= " > {$targetFile}";
 
-        exec($cmd, $output, $return);
-        if (!file_exists($targetFile) || filesize($targetFile) < 150 * 1024) { // a clean install is ~ 200kb, so we ask for at least 150
-            http_response_code(503);
+        $backupProcess = new Process($cmd);
 
-            if ($return === 127) {
+
+        $backupProcess->run();
+        if (!$backupProcess->isSuccessful()) {
+            $code = $backupProcess->getExitCode();
+            if ($code === 127) {
                 echo json_encode([
                     'success' => false,
                     'message' => 'Could not find the mysqldump program on your server; please configure the sitedashclient.mysqldump_binary system setting to point to mysqldump to create backups.',
                     'binary' => $mysqldump,
                     'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory),
-                    'output' => implode("\n", $output),
+                    'output' => $backupProcess->getErrorOutput() . ' ' . $backupProcess->getOutput(),
                 ], JSON_PRETTY_PRINT);
                 return;
             }
 
             echo json_encode([
                 'success' => false,
-                'message' => 'Received exit code ' . $return . ' trying to create a database backup using ' . $mysqldump,
-                'output' => implode("\n", $output),
-                'return' => $return,
+                'message' => 'Received exit code ' . $code . ' trying to create a database backup using ' . $mysqldump,
+                'output' => $backupProcess->getErrorOutput() . ' ' . $backupProcess->getOutput(),
+                'return' => $code,
+            ], JSON_PRETTY_PRINT);
+            return;
+        }
+
+        $backupSize = filesize($targetFile);
+        if ($backupSize < 150 * 1024) { // a clean install is ~ 200kb, so we ask for at least 150
+            http_response_code(503);
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'While the backup with ' . $mysqldump . ' did not indicate an error, the mysql backup is only ' . number_format($backupSize / 1024, 0) . 'kb in size, so it probably failed.',
+                'output' => $backupProcess->getOutput() . ' ' . $backupProcess->getErrorOutput(),
+                'return' => $backupProcess->getExitCode(),
             ], JSON_PRETTY_PRINT);
             return;
         }
@@ -122,7 +138,6 @@ class Backup implements LoadDataInterface {
         echo json_encode([
             'success' => true,
             'directory' => str_replace(MODX_CORE_PATH, '', $this->targetDirectory),
-            'output' => implode("\n", $output),
         ], JSON_PRETTY_PRINT);
     }
 
