@@ -59,8 +59,7 @@ class LoadSystemData implements LoadDataInterface {
         $data['php_version'] = PHP_VERSION;
 
         $connection =& $this->modx->getConnection();
-        if ($connection) {
-            $pdoInstance = $connection->pdo;
+        if ($connection && $pdoInstance = $connection->pdo) {
             $data['pdo_driver'] = $pdoInstance->getAttribute(\PDO::ATTR_DRIVER_NAME);
             $data['pdo_client_version'] = $pdoInstance->getAttribute(\PDO::ATTR_CLIENT_VERSION);
             $data['pdo_server_version'] = $pdoInstance->getAttribute(\PDO::ATTR_SERVER_VERSION);

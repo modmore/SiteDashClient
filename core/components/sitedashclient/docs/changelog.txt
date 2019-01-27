@@ -1,5 +1,6 @@
 - Add check for the proc_get_status function; without it, we can't check the status of the executed command
 - Make sure a failed backup sets the proper response code
+- Prevent fatal error in refresh when the database connection is unavailable
 
 SiteDash Client 1.0.0-pl
 -------------------------
