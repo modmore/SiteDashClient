@@ -1,3 +1,5 @@
+- Return the upgrade logs when checking php executable fails
+
 SiteDash Client 1.0.2-pl
 -------------------------
 Released on 2019-02-25

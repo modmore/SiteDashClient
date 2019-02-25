@@ -64,6 +64,7 @@ class Execute implements LoadDataInterface {
                 'success' => false,
                 'message' => 'Received an error checking the PHP version with command: ' . $process->getCommandLine(),
                 'output' => $process->getOutput() . '/' . $process->getErrorOutput(),
+                'logs' => $this->logs,
             ], JSON_PRETTY_PRINT);
             return;
         }
