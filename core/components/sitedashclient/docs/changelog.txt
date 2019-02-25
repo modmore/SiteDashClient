@@ -1,3 +1,5 @@
+- Log the used PHP executable before running the upgrade
+
 SiteDash Client 1.0.1-pl
 -------------------------
 Released on 2019-02-22
