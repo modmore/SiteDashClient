@@ -1,4 +1,9 @@
+SiteDash Client 1.0.1-pl
+-------------------------
+Released on 2019-02-25
+
 - Log the used PHP executable before running the upgrade
+- Log if the PHP executable couldn't be determined and it's falling back to "php"
 
 SiteDash Client 1.0.1-pl
 -------------------------

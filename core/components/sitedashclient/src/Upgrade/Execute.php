@@ -45,15 +45,15 @@ class Execute implements LoadDataInterface {
             return;
         }
 
-        $this->log('Need to revert the upgrade? A backup of the database and files are stored in:' . str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory));
-
+        $this->log('Need to revert the upgrade? A backup of the database and files are stored in: ' . str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory));
 
         $phpBinaryFinder = new PhpExecutableFinder();
         $phpExecutable = $phpBinaryFinder->find();
         if (!$phpExecutable) {
+            $this->log('Could not determine PHP executable; falling back to `php`.');
             $phpExecutable = 'php';
         }
-        $this->log('Testing PHP executable: ' . $phpExecutable . ' --version');
+        $this->log('Testing PHP executable: `' . $phpExecutable . ' --version`');
 
         $process = new Process([$phpExecutable, '--version']);
         $process->run();
