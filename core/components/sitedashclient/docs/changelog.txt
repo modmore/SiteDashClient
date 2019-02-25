@@ -1,4 +1,4 @@
-SiteDash Client 1.0.1-pl
+SiteDash Client 1.0.2-pl
 -------------------------
 Released on 2019-02-25
 
