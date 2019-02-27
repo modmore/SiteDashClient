@@ -146,8 +146,14 @@ class Execute implements LoadDataInterface {
         $this->log('Unzipped files, pre-processing files... ');
 
         // Find the root folder - these are named `modx-2.6.5-pl` for example inside the zip
-        $rootFolder = array_diff(scandir($downloadTarget, SCANDIR_SORT_ASCENDING), ['.', '..']);
-        $rootFolder = reset($rootFolder);
+        $rootFolder = false;
+        $rootFolderCandidates = array_diff(scandir($downloadTarget, SCANDIR_SORT_ASCENDING), ['.', '..']);
+        foreach ($rootFolderCandidates as $candidate) {
+            if (is_dir($downloadTarget . $candidate) && strpos($candidate, 'modx-') !== false) {
+                $rootFolder = $candidate;
+                break;
+            }
+        }
         if (empty($rootFolder) || !is_dir($downloadTarget . $rootFolder)) {
             http_response_code(501);
             echo json_encode([
