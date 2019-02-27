@@ -1,6 +1,7 @@
 - Return the upgrade logs when checking php executable fails
 - Catch error when creating a new process [S19510]
 - Fix unpacking the MODX zip on servers with NFS [S19512]
+- Fix root files being placed in a deeply nested directory instead of the root [#65]
 
 SiteDash Client 1.0.2-pl
 -------------------------

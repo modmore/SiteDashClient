@@ -210,7 +210,7 @@ class Execute implements LoadDataInterface {
                     $targetPath = MODX_BASE_PATH . 'setup/' . $dlPathSecondPart;
                     break;
                 default:
-                    $targetPath = MODX_BASE_PATH . $dlPath;
+                    $targetPath = MODX_BASE_PATH . $dlPathClean;
                     break;
             }
 
