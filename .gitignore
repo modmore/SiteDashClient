@@ -2,3 +2,5 @@
 config.core.php
 _packages/*/
 .DS_Store
+.sdc_public_key
+.sdc_site_key
