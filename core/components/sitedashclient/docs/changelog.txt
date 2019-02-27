@@ -1,3 +1,4 @@
+- Backups will now be compressed into a zip file to preserve space
 - Return the upgrade logs when checking php executable fails
 - Catch error when creating a new process [S19510]
 - Fix unpacking the MODX zip on servers with NFS [S19512]

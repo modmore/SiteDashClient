@@ -99,6 +99,12 @@ switch ($params['request']) {
         $cmd->run();
         break;
 
+    case 'upgrade/compress':
+        $backupDir = isset($params['params']['backup']) && !empty($params['params']['backup']) ? (string)$params['params']['backup'] : '';
+        $cmd = new \modmore\SiteDashClient\Upgrade\Compress($modx, $backupDir);
+        $cmd->run();
+        break;
+
     default:
         http_response_code(400);
         echo json_encode([
