@@ -88,7 +88,20 @@ class Backup implements LoadDataInterface {
         $backupProcess = new Process($cmd);
 
 
-        $backupProcess->run();
+        try {
+            $backupProcess->run();
+        }
+        catch (\Exception $e) {
+            http_response_code(503);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Received an error trying to run mysqlbackup: ' . $e->getMessage(),
+                'binary' => $mysqldump,
+                'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory),
+                'output' => $e->getTraceAsString(),
+            ], JSON_PRETTY_PRINT);
+            return;
+        }
         if (!$backupProcess->isSuccessful()) {
             http_response_code(503);
             $code = $backupProcess->getExitCode();

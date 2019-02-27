@@ -1,4 +1,5 @@
 - Return the upgrade logs when checking php executable fails
+- Catch error when creating a new process [S19510]
 
 SiteDash Client 1.0.2-pl
 -------------------------

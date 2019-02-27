@@ -56,10 +56,21 @@ class Execute implements LoadDataInterface {
         $this->log('Testing PHP executable: `' . $phpExecutable . ' --version`');
 
         $process = new Process([$phpExecutable, '--version']);
-        $process->run();
+        try {
+            $process->run();
+        } catch (\Exception $e) {
+            http_response_code(503);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Received an error trying to run command "' . $process->getCommandLine() . '": ' . $e->getMessage(),
+                'output' => $e->getTraceAsString(),
+                'logs' => $this->logs,
+            ], JSON_PRETTY_PRINT);
+            return;
+        }
 
         if (!$process->isSuccessful()) {
-            http_response_code(400);
+            http_response_code(503);
             echo json_encode([
                 'success' => false,
                 'message' => 'Received an error checking the PHP version with command: ' . $process->getCommandLine(),
@@ -262,7 +273,21 @@ class Execute implements LoadDataInterface {
 
         $this->log('Running setup with command: ' . $setupProcess->getCommandLine());
 
-        $setupProcess->run();
+        try {
+            $setupProcess->run();
+        } catch (\Exception $e) {
+            http_response_code(503);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Received an error trying to run command "' . $setupProcess->getCommandLine() . '": ' . $e->getMessage(),
+                'output' => $e->getTraceAsString(),
+                'backupDirectory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory),
+                'downloadUrl' => $this->downloadUrl,
+                'modxDownload' => str_replace(MODX_CORE_PATH, '{core_path}', $zipTarget),
+                'logs' => $this->logs,
+            ], JSON_PRETTY_PRINT);
+            return;
+        }
         if ($setupProcess->isSuccessful()) {
             $this->log('Successfully executed the setup. ' . $setupProcess->getOutput());
             http_response_code(200);
