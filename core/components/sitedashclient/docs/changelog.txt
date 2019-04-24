@@ -1,3 +1,9 @@
+SiteDash Client 1.1.1-pl
+-------------------------
+Released on 2019-04-24
+
+- Include the DSN (database name and server) in the system information, to allow detecting changes
+
 SiteDash Client 1.1.0-pl
 -------------------------
 Released on 2019-02-27

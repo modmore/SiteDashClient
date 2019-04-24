@@ -58,11 +58,15 @@ class LoadSystemData implements LoadDataInterface {
         $data = [];
         $data['php_version'] = PHP_VERSION;
 
+        global $database_dsn;
+        $data['database_dsn'] = isset($database_dsn) ? $database_dsn : '';
+
         $connection =& $this->modx->getConnection();
         if ($connection && $pdoInstance = $connection->pdo) {
             $data['pdo_driver'] = $pdoInstance->getAttribute(\PDO::ATTR_DRIVER_NAME);
             $data['pdo_client_version'] = $pdoInstance->getAttribute(\PDO::ATTR_CLIENT_VERSION);
             $data['pdo_server_version'] = $pdoInstance->getAttribute(\PDO::ATTR_SERVER_VERSION);
+            $data['database_server_info'] = $pdoInstance->getAttribute(\PDO::ATTR_SERVER_INFO);
         }
 
         $data['disk_free_space'] = @disk_free_space(MODX_BASE_PATH);
