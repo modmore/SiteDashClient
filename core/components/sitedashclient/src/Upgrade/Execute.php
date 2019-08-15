@@ -45,6 +45,15 @@ class Execute implements LoadDataInterface {
             return;
         }
 
+        if (!class_exists(\ZipArchive::class)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'PHP is compiled without the Zip extension; the upgrade wont be able of unzipping the MODX download.',
+            ], JSON_PRETTY_PRINT);
+            return;
+        }
+
         $this->log('Need to revert the upgrade? A backup of the database and files are stored in: ' . str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory));
 
         $phpBinaryFinder = new PhpExecutableFinder();
