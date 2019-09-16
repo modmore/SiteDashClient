@@ -59,8 +59,15 @@ class Execute implements LoadDataInterface {
         $phpBinaryFinder = new PhpExecutableFinder();
         $phpExecutable = $phpBinaryFinder->find();
         if (!$phpExecutable) {
-            $this->log('Could not determine PHP executable; falling back to `php`.');
-            $phpExecutable = 'php';
+            $configuredExecutable = (string)$this->modx->getOption('sitedashclient.php_binary', null, '');
+            if (!empty($configuredExecutable) && stripos($configuredExecutable, 'php') !== false) {
+                $phpExecutable = trim($configuredExecutable);
+                $this->log('Could not find PHP executable; falling back to configured binary `' . $configuredExecutable . '`');
+            }
+            else {
+                $this->log('Could not find PHP executable; falling back to default `php`');
+                $phpExecutable = 'php';
+            }
         }
         $this->log('Testing PHP executable: `' . $phpExecutable . ' --version`');
 
