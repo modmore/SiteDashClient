@@ -2,9 +2,9 @@
 
 namespace modmore\SiteDashClient\System;
 
-use modmore\SiteDashClient\LoadDataInterface;
+use modmore\SiteDashClient\CommandInterface;
 
-class Files implements LoadDataInterface {
+class Files implements CommandInterface {
     const EXCLUDES = [
         '/.git/',
         MODX_CORE_PATH . 'cache/'

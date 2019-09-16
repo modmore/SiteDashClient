@@ -2,9 +2,9 @@
 
 namespace modmore\SiteDashClient\Package;
 
-use modmore\SiteDashClient\LoadDataInterface;
+use modmore\SiteDashClient\CommandInterface;
 
-class Update implements LoadDataInterface
+class Update implements CommandInterface
 {
     protected $modx;
     protected $packageSignature = '';

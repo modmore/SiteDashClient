@@ -2,9 +2,9 @@
 
 namespace modmore\SiteDashClient\System;
 
-use modmore\SiteDashClient\LoadDataInterface;
+use modmore\SiteDashClient\CommandInterface;
 
-class RepairTable implements LoadDataInterface {
+class RepairTable implements CommandInterface {
     protected $modx;
     protected $params = array();
 

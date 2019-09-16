@@ -2,11 +2,11 @@
 
 namespace modmore\SiteDashClient\Upgrade;
 
-use modmore\SiteDashClient\LoadDataInterface;
+use modmore\SiteDashClient\CommandInterface;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
-class Execute implements LoadDataInterface {
+class Execute implements CommandInterface {
     protected $modx;
     protected $files = [];
     protected $backupDirectory;

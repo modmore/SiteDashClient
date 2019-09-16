@@ -1,7 +1,7 @@
 <?php
 namespace modmore\SiteDashClient;
 
-interface LoadDataInterface
+interface CommandInterface
 {
     public function run();
 }

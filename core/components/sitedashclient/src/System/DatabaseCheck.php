@@ -2,9 +2,9 @@
 
 namespace modmore\SiteDashClient\System;
 
-use modmore\SiteDashClient\LoadDataInterface;
+use modmore\SiteDashClient\CommandInterface;
 
-class DatabaseCheck implements LoadDataInterface {
+class DatabaseCheck implements CommandInterface {
     protected $modx;
 
     public function __construct(\modX $modx)

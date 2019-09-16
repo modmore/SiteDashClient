@@ -48,16 +48,8 @@ $params = $modx::sanitize($_POST);
 switch ($params['request']) {
     case 'system':
     case 'system/refresh':
-        // Create our data class and run it
-        $dataCommand = new \modmore\SiteDashClient\LoadSystemData($modx, $params);
-        $data = $dataCommand->run();
-
-        // Output the requested info
-        http_response_code(200);
-        echo json_encode([
-            'success' => true,
-            'data' => $data,
-        ], JSON_PRETTY_PRINT);
+        $dataCommand = new \modmore\SiteDashClient\Refresh($modx, $params);
+        $dataCommand->run();
         break;
 
     case 'errorlog':

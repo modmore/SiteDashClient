@@ -2,7 +2,7 @@
 
 namespace modmore\SiteDashClient;
 
-class LoadSystemData implements LoadDataInterface {
+class Refresh implements CommandInterface {
     protected $modx;
     protected $params = array();
 
@@ -20,7 +20,13 @@ class LoadSystemData implements LoadDataInterface {
         $data['server'] = $this->getServerInformation();
         $data['packages'] = $this->getPackages();
         $data['health'] = $this->getHealth();
-        return $data;
+
+        // Output the requested info
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'data' => $data,
+        ], JSON_PRETTY_PRINT);
     }
 
     protected function getMODXData()

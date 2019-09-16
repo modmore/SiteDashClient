@@ -1,5 +1,6 @@
 - Check if the ZipArchive class is available before attempting an upgrade [S20710]
 - Allow configuration of the PHP binary if it can't be automatically located [S20896]
+- Rename incorrectly named interface/classes
 
 SiteDash Client 1.1.1-pl
 -------------------------

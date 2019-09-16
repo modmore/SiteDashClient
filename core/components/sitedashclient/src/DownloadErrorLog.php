@@ -2,7 +2,7 @@
 
 namespace modmore\SiteDashClient;
 
-class DownloadErrorLog implements LoadDataInterface {
+class DownloadErrorLog implements CommandInterface {
     protected $modx;
 
     public function __construct(\modX $modx)
