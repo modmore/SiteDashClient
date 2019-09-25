@@ -2,6 +2,7 @@
 - Simplify the response from remote core upgrades; should make the log easier to process in the dashboard
 - Prepare remote core update for future support of updating to nightlies
 - Skip overwriting config.core.php files when upgrading core [#85]
+- Support proxies when downloading MODX [#64]
 
 SiteDash Client 1.1.2-pl
 -------------------------

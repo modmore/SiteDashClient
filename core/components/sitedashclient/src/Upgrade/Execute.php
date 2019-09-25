@@ -2,9 +2,16 @@
 
 namespace modmore\SiteDashClient\Upgrade;
 
+use DOMDocument;
+use Exception;
 use modmore\SiteDashClient\CommandInterface;
+use modX;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
+use ZipArchive;
 
 class Execute implements CommandInterface {
     protected $modx;
@@ -13,7 +20,7 @@ class Execute implements CommandInterface {
     protected $downloadUrl = '';
     private $logs = [];
 
-    public function __construct(\modX $modx, $backupDir, $targetVersion, $nightly)
+    public function __construct(modX $modx, $backupDir, $targetVersion, $nightly)
     {
         $this->modx = $modx;
 
@@ -50,7 +57,7 @@ class Execute implements CommandInterface {
             return;
         }
 
-        if (!class_exists(\ZipArchive::class)) {
+        if (!class_exists(ZipArchive::class)) {
             http_response_code(400);
             echo json_encode([
                 'success' => false,
@@ -79,7 +86,7 @@ class Execute implements CommandInterface {
         $process = new Process([$phpExecutable, '--version']);
         try {
             $process->run();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             http_response_code(503);
             echo json_encode([
                 'success' => false,
@@ -114,6 +121,35 @@ class Execute implements CommandInterface {
         curl_setopt($ch, CURLOPT_TIMEOUT, 90);
         curl_setopt($ch, CURLOPT_FILE, $fp);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+        /**
+         * Support proxies if configured in MODX
+         */
+        $proxyHost = $this->modx->getOption('proxy_host');
+        if (!empty($proxyHost)) {
+            $this->log('Downloading through configured proxy "' . $proxyHost . '"');
+            curl_setopt($ch, CURLOPT_PROXY, $proxyHost);
+            $proxyPort = $this->modx->getOption('proxy_port',null,'');
+            if (!empty($proxyPort)) {
+                curl_setopt($ch, CURLOPT_PROXYPORT, $proxyPort);
+            }
+            $proxyUserpwd = $this->modx->getOption('proxy_username',null,'');
+            if (!empty($proxyUserpwd)) {
+                $proxyAuthType = $this->modx->getOption('proxy_auth_type',null,'BASIC');
+                $proxyAuthType = $proxyAuthType === 'NTLM' ? CURLAUTH_NTLM : CURLAUTH_BASIC;
+                curl_setopt($ch, CURLOPT_PROXYAUTH, $proxyAuthType);
+
+                $proxyPassword = $this->modx->getOption('proxy_password',null,'');
+                if (!empty($proxyPassword)) {
+                    $proxyUserpwd .= ':' . $proxyPassword;
+                }
+                curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyUserpwd);
+            }
+        }
+
+        /**
+         * Do the download
+         */
         curl_exec($ch);
         curl_close($ch);
         fclose($fp);
@@ -134,7 +170,7 @@ class Execute implements CommandInterface {
         $this->log('MODX downloaded!');
         $this->log('Unzipping download...');
 
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
         if ($zip->open($zipTarget) !== true) {
             http_response_code(501);
             echo json_encode([
@@ -203,9 +239,9 @@ class Execute implements CommandInterface {
 
         $this->log('Processing files... ');
 
-        $rii = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($downloadTarget));
+        $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($downloadTarget));
 
-        /** @var \SplFileInfo $dlFile */
+        /** @var SplFileInfo $dlFile */
         foreach ($rii as $dlFile) {
             if ($dlFile->isDir()) {
                 continue;
@@ -295,7 +331,7 @@ class Execute implements CommandInterface {
             'core_path' => MODX_CORE_PATH,
             'remove_setup_directory' => true
         );
-        $xml = new \DOMDocument('1.0', 'utf-8');
+        $xml = new DOMDocument('1.0', 'utf-8');
         $modx = $xml->createElement('modx');
         foreach ($config as $key => $value) {
             $modx->appendChild($xml->createElement($key, $value));
@@ -327,7 +363,7 @@ class Execute implements CommandInterface {
 
         try {
             $setupProcess->run();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             http_response_code(503);
             echo json_encode([
                 'success' => false,
