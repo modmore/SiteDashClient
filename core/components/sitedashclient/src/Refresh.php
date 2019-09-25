@@ -67,6 +67,7 @@ class Refresh implements CommandInterface {
 
         global $database_dsn;
         $data['database_dsn'] = isset($database_dsn) ? $database_dsn : '';
+        $data['database_table_prefix'] = $this->modx->getOption('table_prefix');
 
         $connection =& $this->modx->getConnection();
         if ($connection && $pdoInstance = $connection->pdo) {

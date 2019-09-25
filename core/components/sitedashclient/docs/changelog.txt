@@ -3,6 +3,7 @@
 - Prepare remote core update for future support of updating to nightlies
 - Skip overwriting config.core.php files when upgrading core [#85]
 - Support proxies when downloading MODX [#64]
+- Include database table prefix when refreshing information [#30]
 
 SiteDash Client 1.1.2-pl
 -------------------------
