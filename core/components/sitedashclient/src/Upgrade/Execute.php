@@ -237,6 +237,7 @@ class Execute implements CommandInterface {
             $backupFiles = [];
             $overwrittenFiles = [];
             $createdFiles = [];
+            $skippedFiles = [];
             if (file_exists($targetPath)) {
                 $targetHash = hash_file('sha256', $targetPath);
                 $dlHash = hash_file('sha256', $dlPath);
@@ -248,7 +249,10 @@ class Execute implements CommandInterface {
                         $this->log('Could not copy file to backup: ' . $targetPath);
                     }
                     // If the file is different, overwrite it
-                    if (copy($dlPath, $targetPath)) {
+                    if ($this->shouldFileBeSkipped($dlPathClean)) {
+                        $skippedFiles[] = $dlPathClean;
+                    }
+                    elseif (copy($dlPath, $targetPath)) {
                         $overwrittenFiles[] = $dlPathClean;
                     }
                     else {
@@ -269,6 +273,9 @@ class Execute implements CommandInterface {
 
             if (count($backupFiles) > 0) {
                 $this->log("Backed up files: \n- " . implode(" \n- ", $backupFiles));
+            }
+            if (count($skippedFiles) > 0) {
+                $this->log("Skipped overwriting files: \n- " . implode(" \n- ", $skippedFiles));
             }
             if (count($overwrittenFiles) > 0) {
                 $this->log("Overwritten files: \n- " . implode(" \n- ", $overwrittenFiles));
@@ -377,5 +384,10 @@ class Execute implements CommandInterface {
             'timestamp' => time(),
             'message' => $msg,
         ];
+    }
+
+    private function shouldFileBeSkipped($filePath)
+    {
+        return strpos($filePath, 'config.core.php') !== false;
     }
 }
