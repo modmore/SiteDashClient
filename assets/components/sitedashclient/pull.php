@@ -87,7 +87,8 @@ switch ($params['request']) {
     case 'upgrade/execute':
         $backupDir = isset($params['params']['backup']) && !empty($params['params']['backup']) ? (string)$params['params']['backup'] : '';
         $targetVersion = isset($params['params']['target_version']) && !empty($params['params']['target_version']) ? (string)$params['params']['target_version'] : false;
-        $cmd = new \modmore\SiteDashClient\Upgrade\Execute($modx, $backupDir, $targetVersion);
+        $nightly = isset($params['params']['nightly']) ? (bool)$params['params']['nightly'] : false;
+        $cmd = new \modmore\SiteDashClient\Upgrade\Execute($modx, $backupDir, $targetVersion, $nightly);
         $cmd->run();
         break;
 

@@ -13,13 +13,18 @@ class Execute implements CommandInterface {
     protected $downloadUrl = '';
     private $logs = [];
 
-    public function __construct(\modX $modx, $backupDir, $targetVersion)
+    public function __construct(\modX $modx, $backupDir, $targetVersion, $nightly)
     {
         $this->modx = $modx;
 
         $backupDir = preg_replace(array("/\.*[\/|\\\]/i", "/[\/|\\\]+/i"), array('/', '/'), $backupDir);
         $this->backupDirectory = MODX_CORE_PATH . rtrim($backupDir, '/') . '/';
-        $this->downloadUrl = 'https://modx.com/download/direct/modx-' . urlencode($targetVersion) . '.zip';
+        if ($nightly) {
+            $this->downloadUrl = 'https://modx.s3.amazonaws.com/releases/nightlies/' . $targetVersion . '.zip';
+        }
+        else {
+            $this->downloadUrl = 'https://modx.com/download/direct/modx-' . urlencode($targetVersion) . '.zip';
+        }
         set_time_limit(90);
     }
 
@@ -134,7 +139,7 @@ class Execute implements CommandInterface {
             http_response_code(501);
             echo json_encode([
                 'success' => false,
-                'message' => 'Failed unzipping MODX zip.',
+                'message' => 'Failed opening MODX zip file.',
                 'backupDirectory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory),
                 'downloadUrl' => $this->downloadUrl,
                 'modxDownload' => str_replace(MODX_CORE_PATH, '{core_path}', $zipTarget),
@@ -196,8 +201,7 @@ class Execute implements CommandInterface {
             $this->log('Failed removing directory ' . $downloadTarget . $rootFolder);
         }
 
-
-        $this->log('Comparing downloaded files with current files to add to backup... ');
+        $this->log('Processing files... ');
 
         $rii = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($downloadTarget));
 
@@ -230,18 +234,24 @@ class Execute implements CommandInterface {
                     break;
             }
 
+            $backupFiles = [];
+            $overwrittenFiles = [];
+            $createdFiles = [];
             if (file_exists($targetPath)) {
                 $targetHash = hash_file('sha256', $targetPath);
                 $dlHash = hash_file('sha256', $dlPath);
                 if ($targetHash !== $dlHash) {
-                    $this->log('Adding ' .$dlPathClean . ' to backup');
+                    $backupFiles[] = $dlPathClean;
                     $backupPath = $this->backupDirectory . 'files/' . str_replace([MODX_CORE_PATH, MODX_BASE_PATH], ['core/', ''], $targetPath);
                     $this->createDirectory(dirname($backupPath));
                     if (!copy($targetPath, $backupPath)) {
-                        $this->log('Failed making copy of ' . $targetPath);
+                        $this->log('Could not copy file to backup: ' . $targetPath);
                     }
                     // If the file is different, overwrite it
-                    if (!copy($dlPath, $targetPath)) {
+                    if (copy($dlPath, $targetPath)) {
+                        $overwrittenFiles[] = $dlPathClean;
+                    }
+                    else {
                         $this->log('Failed overwriting ' . $targetPath . ' with contents of downloaded ' . $dlPathClean);
                     }
                 }
@@ -249,9 +259,22 @@ class Execute implements CommandInterface {
             // If the file doesn't currently exist, write it
             else {
                 $this->createDirectory(dirname($targetPath));
-                if (!copy($dlPath, $targetPath)) {
+                if (copy($dlPath, $targetPath)) {
+                    $createdFiles[] = $dlPathClean;
+                }
+                else {
                     $this->log('Failed writing ' . $targetPath . ' with contents of downloaded ' . $dlPathClean);
                 }
+            }
+
+            if (count($backupFiles) > 0) {
+                $this->log("Backed up files: \n- " . implode(" \n- ", $backupFiles));
+            }
+            if (count($overwrittenFiles) > 0) {
+                $this->log("Overwritten files: \n- " . implode(" \n- ", $overwrittenFiles));
+            }
+            if (count($createdFiles) > 0) {
+                $this->log("Created files: \n- " . implode(" \n- ", $createdFiles));
             }
         }
 

@@ -1,4 +1,6 @@
 - Include the site name setting in the refresh response
+- Simplify the response from remote core upgrades; should make the log easier to process in the dashboard
+- Prepare remote core update for future support of updating to nightlies
 
 SiteDash Client 1.1.2-pl
 -------------------------
