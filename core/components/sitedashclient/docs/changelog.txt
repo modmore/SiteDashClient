@@ -1,3 +1,7 @@
+SiteDash Client 1.2.0-pl
+-------------------------
+Released on 2019-09-26
+
 - Include the site name setting in the refresh response
 - Simplify the response from remote core upgrades; should make the log easier to process in the dashboard
 - Prepare remote core update for future support of updating to nightlies
