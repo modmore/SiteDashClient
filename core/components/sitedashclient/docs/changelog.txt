@@ -1,3 +1,5 @@
+- [security] Prevent the MySQL password from potentially being in the returned message if the database backup fails
+
 SiteDash Client 1.2.0-pl
 -------------------------
 Released on 2019-09-26

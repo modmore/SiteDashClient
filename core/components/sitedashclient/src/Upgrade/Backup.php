@@ -92,16 +92,22 @@ class Backup implements CommandInterface {
             $backupProcess->run();
         }
         catch (\Exception $e) {
+            $msg = $e->getMessage();
+            $msg = str_replace($password_parameter, '-p\'<PASS>\'', $msg);
+            $trace = $e->getTraceAsString();
+            $trace = str_replace($password_parameter, '-p\'<PASS>\'', $trace);
             http_response_code(503);
             echo json_encode([
                 'success' => false,
-                'message' => 'Received an error trying to run mysqlbackup: ' . $e->getMessage(),
+                'message' => 'Received an error trying to run mysqlbackup: ' . $msg,
                 'binary' => $mysqldump,
                 'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory),
-                'output' => $e->getTraceAsString(),
+                'output' => $trace,
             ], JSON_PRETTY_PRINT);
             return;
         }
+        $output = $backupProcess->getErrorOutput() . ' ' . $backupProcess->getOutput();
+        $output = str_replace($password_parameter, '-p\'<PASS>\'', $output);
         if (!$backupProcess->isSuccessful()) {
             http_response_code(503);
             $code = $backupProcess->getExitCode();
@@ -111,7 +117,7 @@ class Backup implements CommandInterface {
                     'message' => 'Could not find the mysqldump program on your server; please configure the sitedashclient.mysqldump_binary system setting to point to mysqldump to create backups.',
                     'binary' => $mysqldump,
                     'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory),
-                    'output' => $backupProcess->getErrorOutput() . ' ' . $backupProcess->getOutput(),
+                    'output' => $output,
                 ], JSON_PRETTY_PRINT);
                 return;
             }
@@ -119,7 +125,7 @@ class Backup implements CommandInterface {
             echo json_encode([
                 'success' => false,
                 'message' => 'Received exit code ' . $code . ' trying to create a database backup using ' . $mysqldump,
-                'output' => $backupProcess->getErrorOutput() . ' ' . $backupProcess->getOutput(),
+                'output' => $output,
                 'return' => $code,
             ], JSON_PRETTY_PRINT);
             return;
@@ -132,7 +138,7 @@ class Backup implements CommandInterface {
             echo json_encode([
                 'success' => false,
                 'message' => 'While the backup with ' . $mysqldump . ' did not indicate an error, the mysql backup is only ' . number_format($backupSize / 1024, 0) . 'kb in size, so it probably failed.',
-                'output' => $backupProcess->getOutput() . ' ' . $backupProcess->getErrorOutput(),
+                'output' => $output,
                 'return' => $backupProcess->getExitCode(),
             ], JSON_PRETTY_PRINT);
             return;
