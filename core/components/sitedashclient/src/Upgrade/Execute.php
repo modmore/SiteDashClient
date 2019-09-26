@@ -239,6 +239,11 @@ class Execute implements CommandInterface {
 
         $this->log('Processing files... ');
 
+        $backupFiles = [];
+        $overwrittenFiles = [];
+        $createdFiles = [];
+        $skippedFiles = [];
+
         $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($downloadTarget));
 
         /** @var SplFileInfo $dlFile */
@@ -270,10 +275,6 @@ class Execute implements CommandInterface {
                     break;
             }
 
-            $backupFiles = [];
-            $overwrittenFiles = [];
-            $createdFiles = [];
-            $skippedFiles = [];
             if (file_exists($targetPath)) {
                 $targetHash = hash_file('sha256', $targetPath);
                 $dlHash = hash_file('sha256', $dlPath);
@@ -284,16 +285,23 @@ class Execute implements CommandInterface {
                     if (!copy($targetPath, $backupPath)) {
                         $this->log('Could not copy file to backup: ' . $targetPath);
                     }
-                    // If the file is different, overwrite it
+
+                    // Handle the file - skip it, or copy it
                     if ($this->shouldFileBeSkipped($dlPathClean)) {
                         $skippedFiles[] = $dlPathClean;
+                        unlink($dlPath);
                     }
                     elseif (copy($dlPath, $targetPath)) {
                         $overwrittenFiles[] = $dlPathClean;
+                        unlink($dlPath);
                     }
                     else {
                         $this->log('Failed overwriting ' . $targetPath . ' with contents of downloaded ' . $dlPathClean);
                     }
+                }
+                // downloaded + target file are the same
+                else {
+                    unlink($dlPath);
                 }
             }
             // If the file doesn't currently exist, write it
@@ -306,19 +314,19 @@ class Execute implements CommandInterface {
                     $this->log('Failed writing ' . $targetPath . ' with contents of downloaded ' . $dlPathClean);
                 }
             }
+        }
 
-            if (count($backupFiles) > 0) {
-                $this->log("Backed up files: \n- " . implode(" \n- ", $backupFiles));
-            }
-            if (count($skippedFiles) > 0) {
-                $this->log("Skipped overwriting files: \n- " . implode(" \n- ", $skippedFiles));
-            }
-            if (count($overwrittenFiles) > 0) {
-                $this->log("Overwritten files: \n- " . implode(" \n- ", $overwrittenFiles));
-            }
-            if (count($createdFiles) > 0) {
-                $this->log("Created files: \n- " . implode(" \n- ", $createdFiles));
-            }
+        if (count($backupFiles) > 0) {
+            $this->log('Backed up files: ' . implode(' | ', $backupFiles));
+        }
+        if (count($skippedFiles) > 0) {
+            $this->log('Skipped overwriting files: ' . implode(' | ', $skippedFiles));
+        }
+        if (count($overwrittenFiles) > 0) {
+            $this->log('Overwritten files: ' . implode(' | ', $overwrittenFiles));
+        }
+        if (count($createdFiles) > 0) {
+            $this->log('Created files: ' . implode(' | ', $createdFiles));
         }
 
         $this->log('Completed pre-processing files and backing up files that changed.');

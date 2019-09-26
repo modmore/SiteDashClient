@@ -4,6 +4,7 @@
 - Skip overwriting config.core.php files when upgrading core [#85]
 - Support proxies when downloading MODX [#64]
 - Include database table prefix when refreshing information [#30]
+- Fix incorrect savings percentage shown for compressing backup
 
 SiteDash Client 1.1.2-pl
 -------------------------

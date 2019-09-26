@@ -52,6 +52,7 @@ class Compress implements CommandInterface {
 
         $rii = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->backupDirectory));
 
+        $compressedFiles = [];
         $deleteFiles = [];
         $totalSize = 0;
         $totalFiles = 0;
@@ -67,7 +68,7 @@ class Compress implements CommandInterface {
             if (is_readable($path) && $zip->addFile($path, $relativePath)) {
                 $totalSize += $file->getSize();
                 $totalFiles++;
-                $this->log('Compressing ' . $relativePath);
+                $compressedFiles[] = $relativePath;
                 $deleteFiles[] = $path;
             }
         }
@@ -97,15 +98,19 @@ class Compress implements CommandInterface {
             return;
         }
 
+        $this->log('Added files to zip file: ' . implode(' | ', $compressedFiles));
+
+        $deleted = [];
         foreach ($deleteFiles as $deleteFile) {
             // Make sure the file actually exists and is within our backupDirectory
             if (file_exists($deleteFile) && strpos($deleteFile, $this->backupDirectory) !== false) {
                 if (unlink($deleteFile)) {
                     $relativePath = str_replace($this->backupDirectory, '', $deleteFile);
-                    $this->log('Deleted uncompressed backup of ' . $relativePath);
+                    $deleted[] = $relativePath;
                 }
             }
         }
+        $this->log('Deleted uncompressed files: ' . implode(' | ', $deleted));
 
         $this->cleanEmptyFolders($this->backupDirectory);
 
@@ -113,7 +118,7 @@ class Compress implements CommandInterface {
 
         $totalSizeFormatted = $this->formatBytes($totalSize);
         $zipSizeFormatted = $this->formatBytes($zipSize);
-        $reductionPercent = number_format(($zipSizeFormatted - $totalSizeFormatted) / $totalSizeFormatted * 100, 0);
+        $reductionPercent = number_format(($zipSize - $totalSize) / $totalSize * 100, 0);
 
         $this->log("Compressed backup from {$totalSizeFormatted} to {$zipSizeFormatted} ({$reductionPercent}% savings)");
 
