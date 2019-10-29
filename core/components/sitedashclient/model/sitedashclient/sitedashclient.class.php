@@ -7,7 +7,7 @@ require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
  */
 class SiteDashClient
 {
-    const VERSION = '1.3.0-dev1';
+    const VERSION = '1.3.0-rc1';
     /**
      * @var modX|null $modx
      */
@@ -51,6 +51,7 @@ class SiteDashClient
     {
         // Verify the site key, stored in a file
         if ($this->_getSiteKey() !== $siteKey) {
+            echo "Sitekey doesnt match";
             return false;
         }
 

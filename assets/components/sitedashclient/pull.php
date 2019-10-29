@@ -9,7 +9,7 @@ $signature = array_key_exists('HTTP_X_SITEDASH_SIGNATURE', $_SERVER) && !empty($
 // Make sure we have the site key and signature before even bothering continuing
 if (!$siteKey || !$signature) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'data' => ['message' => 'Missing authentication.']]);
+    echo json_encode(['success' => false, 'message' => 'Missing authentication.']);
     @session_write_close();
     exit();
 }
@@ -30,14 +30,14 @@ $sdc = $modx->getService('sitedashclient', 'SiteDashClient', $corePath);
 if (!($sdc instanceof SiteDashClient)) {
     $modx->log(modX::LOG_LEVEL_ERROR, '[SiteDashClient pull] Unable to load SiteDashClient service');
     http_response_code(503);
-    echo json_encode(['success' => false, 'data' => ['message' => 'Couldn\'t load service.']]);
+    echo json_encode(['success' => false, 'message' => 'Couldn\'t load service.']);
     @session_write_close();
     exit();
 }
 
 if (!$sdc->isValidRequest($siteKey, $signature, $_POST)) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'data' => ['message' => 'Invalid authentication.']]);
+    echo json_encode(['success' => false, 'message' => 'Invalid authentication.']);
     @session_write_close();
     exit();
 }
@@ -69,6 +69,12 @@ switch ($params['request']) {
 
     case 'system/files':
         $cmd = new \modmore\SiteDashClient\System\Files($modx, $params['params']);
+        $cmd->run();
+        break;
+
+    case 'system/clearcache':
+        $force = isset($params['params']['force']) && !empty($params['params']['force']) ? (bool)$params['params']['force'] : '';
+        $cmd = new \modmore\SiteDashClient\System\ClearCache($modx, $force);
         $cmd->run();
         break;
 

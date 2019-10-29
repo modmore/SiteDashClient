@@ -150,7 +150,7 @@ class Refresh implements CommandInterface {
         }
 
         $c = 'SELECT TABLE_ROWS, DATA_LENGTH, INDEX_LENGTH FROM information_schema.TABLES WHERE table_schema = ' . $this->modx->quote($this->modx->connection->config['dbname']) . ' AND table_name = ' . $this->modx->quote(trim($name, '`'));
-        $health['_debug'] = $c;
+
         if ($sizeQuery = $this->modx->query($c)) {
             $rows = $sizeQuery->fetchAll(\PDO::FETCH_ASSOC);
             $health['session_sizes'] = reset($rows);
