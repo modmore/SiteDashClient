@@ -51,7 +51,7 @@ class SiteDashClient
     {
         // Verify the site key, stored in a file
         if ($this->_getSiteKey() !== $siteKey) {
-            echo "Sitekey doesnt match";
+            $this->modx->log(modX::LOG_LEVEL_ERROR, '[SiteDashClient] Unable to verify SiteDash request; Site Key does not match.');
             return false;
         }
 
