@@ -78,6 +78,11 @@ switch ($params['request']) {
         $cmd->run();
         break;
 
+    case 'system/status':
+        $cmd = new \modmore\SiteDashClient\System\Status($modx);
+        $cmd->run();
+        break;
+
     case 'package/update':
         $package = isset($params['params']['package']) && !empty($params['params']['package']) ? (string)$params['params']['package'] : '';
         $cmd = new \modmore\SiteDashClient\Package\Update($modx, $package);
