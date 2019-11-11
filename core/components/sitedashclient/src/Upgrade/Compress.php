@@ -3,7 +3,6 @@
 namespace modmore\SiteDashClient\Upgrade;
 
 use modmore\SiteDashClient\CommandInterface;
-use SiteDash\Utility\Formatter;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
@@ -91,7 +90,7 @@ class Compress implements CommandInterface {
             http_response_code(501);
             echo json_encode([
                 'success' => false,
-                'message' => 'Backup zip is only ' . Formatter::bytes($zipSize) . ' - something probably went wrong.',
+                'message' => 'Backup zip is only ' . $this->formatBytes($zipSize) . ' - something probably went wrong.',
                 'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory),
                 'zip' => str_replace(MODX_CORE_PATH, '{core_path}', $this->backupZipPath),
                 'logs' => $this->logs,
@@ -117,8 +116,8 @@ class Compress implements CommandInterface {
 
         $this->log('Created zip file of backup with ' . $totalFiles . ' files.');
 
-        $totalSizeFormatted = Formatter::bytes($totalSize);
-        $zipSizeFormatted = Formatter::bytes($zipSize);
+        $totalSizeFormatted = $this->formatBytes($totalSize);
+        $zipSizeFormatted = $this->formatBytes($zipSize);
         $reductionPercent = number_format(($zipSize - $totalSize) / $totalSize * 100, 0);
 
         $this->log("Compressed backup from {$totalSizeFormatted} to {$zipSizeFormatted} ({$reductionPercent}% savings)");
@@ -154,5 +153,18 @@ class Compress implements CommandInterface {
             'timestamp' => time(),
             'message' => $msg,
         ];
+    }
+
+    private function formatBytes ($bytes, $precision = 2)
+    {
+        $units = array('B', 'KB', 'MB', 'GB', 'TB');
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, \count($units) - 1);
+
+        // Uncomment one of the following alternatives
+        $bytes /= 1024 ** $pow;
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }
