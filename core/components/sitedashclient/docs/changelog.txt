@@ -1,3 +1,12 @@
+SiteDash Client 1.3.0-rc1
+-------------------------
+Released on 2019-11-12
+
+New features:
+- Allow remotely clearing the MODX cache (regular via modCacheManager, and forced by removing directories in core/cache)
+- Check the size of the session table during refresh, to validate (in dashboard) if garbage collection on sessions is running properly
+- New endpoint for extended monitoring (CPU/Memory usage/database health; in limited beta)
+
 SiteDash Client 1.2.1-pl
 -------------------------
 Released on 2019-09-27
