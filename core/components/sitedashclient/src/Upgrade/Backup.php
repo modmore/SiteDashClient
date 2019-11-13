@@ -33,9 +33,6 @@ class Backup implements CommandInterface {
         }
 
         $this->targetDirectory = MODX_CORE_PATH . 'export/backup_' . date('Y-m-d-His') . '_' . rand(0,9999999) . '/';
-        if (!file_exists($this->targetDirectory) && !mkdir($concurrentDirectory = $this->targetDirectory) && !is_dir($concurrentDirectory)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-        }
     }
 
     public function run()
@@ -54,6 +51,16 @@ class Backup implements CommandInterface {
             echo json_encode([
                 'success' => false,
                 'message' => 'The proc_get_status() function is disabled on your server. This is required to allow the status of the backup to be checked.',
+                'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory)
+            ], JSON_PRETTY_PRINT);
+            return;
+        }
+
+        if (!$this->createDirectory($this->targetDirectory)) {
+            http_response_code(503);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Could not create the backup directory ' . str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory),
                 'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory)
             ], JSON_PRETTY_PRINT);
             return;
