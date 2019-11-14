@@ -46,8 +46,13 @@ class Refresh implements CommandInterface {
         $data['connectors_url'] = MODX_CONNECTORS_URL;
         $data['manager_language'] = $this->modx->getOption('manager_language');
         $data['which_editor'] = $this->modx->getOption('which_editor');
-        $errorFile = $this->modx->getOption('cache_path') . 'logs/error.log';
+
+        // Support custom error log names/paths
+        $filename = $this->modx->getOption('error_log_filename', null, 'error.log', true);
+        $filepath = $this->modx->getOption('error_log_filepath', null, $this->modx->getCachePath() . 'logs/', true);
+        $errorFile = rtrim($filepath, '/') . '/' . $filename;
         $data['error_log_size'] = file_exists($errorFile) ? filesize($errorFile) : 0;
+
         $data['users'] = $this->modx->getCount('modUser');
         $data['users_sudo'] = $this->modx->getCount('modUser', ['sudo' => true]);
         $data['users_sudo_usernames'] = [];

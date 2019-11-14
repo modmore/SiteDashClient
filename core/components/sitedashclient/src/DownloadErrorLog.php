@@ -12,14 +12,18 @@ class DownloadErrorLog implements CommandInterface {
 
     public function run()
     {
-        $file = $this->modx->getOption('cache_path') . 'logs/error.log';
+        // Support custom error log names/paths
+        $filename = $this->modx->getOption('error_log_filename', null, 'error.log', true);
+        $filepath = $this->modx->getOption('error_log_filepath', null, $this->modx->getCachePath() . 'logs/', true);
+        $file = rtrim($filepath, '/') . '/' . $filename;
         if (!file_exists($file)) {
             http_response_code(404);
             echo json_encode([
                 'success' => false,
+                'message' => 'Error log not found',
                 'data' => [
-                    'message' => 'Error log not found'
-                ]
+                    'path' => str_replace(MODX_CORE_PATH, '{core_path}', $filepath . $filename),
+                ],
             ]);
             return;
         }
