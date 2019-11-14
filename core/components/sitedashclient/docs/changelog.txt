@@ -1,5 +1,6 @@
 - Return a nice error when the backup failed to create the target directory [S21442]
 - Restore PHP5 compatibility in status endpoint
+- Update the way the number of CPU cores is determined in status endpoint
 
 SiteDash Client 1.3.0-rc1
 -------------------------
