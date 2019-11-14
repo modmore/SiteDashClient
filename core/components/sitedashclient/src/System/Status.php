@@ -69,7 +69,7 @@ class Status implements CommandInterface {
             return $numCpus;
         }
 
-        // Proc/cpuinfo is similar - but it lists processors (which may have multiple cores
+        // Proc/cpuinfo is similar
         if (is_file('/proc/cpuinfo') && is_readable('/proc/cpuinfo')) {
             $cpuinfo = file_get_contents('/proc/cpuinfo');
             $cpuinfo = explode("\n", $cpuinfo);
