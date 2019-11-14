@@ -41,7 +41,7 @@ class Status implements CommandInterface {
         return 'notavailable';
     }
 
-    private function isDatabaseAlive(): bool
+    private function isDatabaseAlive()
     {
         $randomAliveString = 'SiteDashAliveCheck-' . rand(0, 9999);
         $alive = $this->modx->query('SELECT ' . $this->modx->quote($randomAliveString));
@@ -82,7 +82,7 @@ class Status implements CommandInterface {
         return $numCpus;
     }
 
-    private function getMemoryUsage(): array
+    private function getMemoryUsage()
     {
         $memoryTotal = null;
         $memoryFree = null;
