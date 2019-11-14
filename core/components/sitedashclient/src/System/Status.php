@@ -9,6 +9,7 @@ class Status implements CommandInterface {
      * @var \modX
      */
     private $modx;
+    private $_cpuCountMethod = '';
 
     public function __construct(\modX $modx)
     {
@@ -23,6 +24,7 @@ class Status implements CommandInterface {
             'memory' => $this->getMemoryUsage(),
             'db_alive' => $this->isDatabaseAlive(),
             'cpu_count' => $this->getCPUCount(),
+            'cpu_count_method' => $this->_cpuCountMethod,
         ];
         
         http_response_code($return['success'] ? 200 : 500);
@@ -51,35 +53,52 @@ class Status implements CommandInterface {
 
     private function getCPUCount()
     {
-        $numCpus = 1;
+        // If /proc/stat is available, we can parse through that and get a count of lines starting with "cpu" to get the cores
+        if (is_file('/proc/stat') && is_readable('/proc/stat')) {
+            $stat = file_get_contents('/proc/stat');
+            $stat = explode("\n", $stat);
 
-        if (is_file('/proc/cpuinfo') && is_readable('/proc/cpuinfo')) {
-            $cpuinfo = file_get_contents('/proc/cpuinfo');
-            preg_match_all('/^processor/m', $cpuinfo, $matches);
-            return count($matches[0]);
+            $numCpus = -1; // starting at -1 because the first match is a total line
+            foreach ($stat as $line) {
+                if (strpos($line, 'cpu') === 0) {
+                    $numCpus++;
+                }
+            }
+
+            $this->_cpuCountMethod = '/proc/stat';
+            return $numCpus;
         }
 
-        if (stripos(PHP_OS, 'WIN') === 0) {
+        // Proc/cpuinfo is similar - but it lists processors (which may have multiple cores
+        if (is_file('/proc/cpuinfo') && is_readable('/proc/cpuinfo')) {
+            $cpuinfo = file_get_contents('/proc/cpuinfo');
+            $cpuinfo = explode("\n", $cpuinfo);
+            $numCores = 0;
+            foreach ($cpuinfo as $line) {
+                if (strpos($line, 'cpu cores') === 0) {
+                    $numCores += (int)substr($line, strpos(':', $line) + 1);
+                }
+            }
+
+            $this->_cpuCountMethod = '/proc/cpuinfo';
+            return $numCores;
+        }
+
+        // Windows
+        if (function_exists('popen') && stripos(PHP_OS, 'WIN') === 0) {
             $process = @popen('wmic cpu get NumberOfCores', 'rb');
             if ($process !== false) {
                 fgets($process);
                 $numCpus = (int)fgets($process);
                 pclose($process);
+
+                $this->_cpuCountMethod = 'wmic';
                 return $numCpus;
             }
         }
 
-        $process = @popen('sysctl -a', 'rb');
-        if ($process !== false) {
-            $output = stream_get_contents($process);
-            preg_match('/hw.ncpu: (\d+)/', $output, $matches);
-            if ($matches) {
-                $numCpus = (int)$matches[1][0];
-            }
-            pclose($process);
-        }
-
-        return $numCpus;
+        $this->_cpuCountMethod = 'notavailable';
+        return 0;
     }
 
     private function getMemoryUsage()
