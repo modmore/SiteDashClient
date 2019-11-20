@@ -54,7 +54,7 @@ class Status implements CommandInterface {
     private function getCPUCount()
     {
         // If /proc/stat is available, we can parse through that and get a count of lines starting with "cpu" to get the cores
-        if (is_file('/proc/stat') && is_readable('/proc/stat')) {
+        if (@is_file('/proc/stat') && @is_readable('/proc/stat')) {
             $stat = file_get_contents('/proc/stat');
             $stat = explode("\n", $stat);
 
@@ -70,7 +70,7 @@ class Status implements CommandInterface {
         }
 
         // Proc/cpuinfo is similar
-        if (is_file('/proc/cpuinfo') && is_readable('/proc/cpuinfo')) {
+        if (@is_file('/proc/cpuinfo') && @is_readable('/proc/cpuinfo')) {
             $cpuinfo = file_get_contents('/proc/cpuinfo');
             $cpuinfo = explode("\n", $cpuinfo);
             $numCores = 0;
@@ -134,8 +134,8 @@ class Status implements CommandInterface {
                 }
             }
         }
-        elseif (is_readable('/proc/meminfo')) {
-            $stats = @file_get_contents('/proc/meminfo');
+        elseif (@is_file('/proc/meminfo') && @is_readable('/proc/meminfo')) {
+            $stats = file_get_contents('/proc/meminfo');
 
             if ($stats !== false) {
                 // Separate lines
