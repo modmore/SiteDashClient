@@ -1,3 +1,7 @@
+SiteDash Client 1.3.1-pl
+-------------------------
+Released on 2019-11-25
+
 - Silence open_basedir related PHP warnings in status endpoint for extended monitoring
 
 SiteDash Client 1.3.0-pl
