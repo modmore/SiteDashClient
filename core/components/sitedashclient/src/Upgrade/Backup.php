@@ -131,7 +131,7 @@ class Backup implements CommandInterface {
 
             echo json_encode([
                 'success' => false,
-                'message' => 'Received exit code ' . $code . ' trying to create a database backup using ' . $mysqldump,
+                'message' => 'Received exit code ' . $code . ' trying to create a database backup using ' . $mysqldump . ' with message: ' . $output,
                 'output' => $output,
                 'return' => $code,
             ], JSON_PRETTY_PRINT);
