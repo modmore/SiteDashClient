@@ -1,4 +1,5 @@
 - Return mysqldump output in the user visible message when encountering an error [S21887]
+- Increase timeouts for backup and upgrade to 120 seconds [S22377]
 
 SiteDash Client 1.3.1-pl
 -------------------------

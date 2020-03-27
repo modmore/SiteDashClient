@@ -93,6 +93,8 @@ class Backup implements CommandInterface {
         $cmd .= " > {$targetFile}";
 
         $backupProcess = new Process($cmd);
+        $backupProcess->setTimeout(120);
+        $backupProcess->setIdleTimeout(120);
 
 
         try {

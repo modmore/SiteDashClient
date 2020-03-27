@@ -84,6 +84,8 @@ class Execute implements CommandInterface {
         $this->log('Testing PHP executable: `' . $phpExecutable . ' --version`');
 
         $process = new Process([$phpExecutable, '--version']);
+        $process->setTimeout(120);
+        $process->setIdleTimeout(120);
         try {
             $process->run();
         } catch (Exception $e) {
