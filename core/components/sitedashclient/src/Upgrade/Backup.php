@@ -3,6 +3,8 @@
 namespace modmore\SiteDashClient\Upgrade;
 
 use modmore\SiteDashClient\CommandInterface;
+use modmore\SiteDashClient\Communication\Pusher;
+use modmore\SiteDashClient\Communication\Result;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
@@ -10,10 +12,15 @@ class Backup implements CommandInterface {
     protected $modx;
     protected $files = [];
     protected $targetDirectory;
+    /**
+     * @var Pusher|null
+     */
+    private $pusher;
 
-    public function __construct(\modX $modx)
+    public function __construct(\modX $modx, $pusher = null)
     {
         $this->modx = $modx;
+        $this->pusher = $pusher;
 
         $this->files = [
             MODX_CORE_PATH . 'config/' . MODX_CONFIG_KEY . '.inc.php',
@@ -66,6 +73,13 @@ class Backup implements CommandInterface {
             return;
         }
 
+        // If a push result was requested, send an ack response and continue processing
+        if ($this->pusher) {
+            $this->pusher->acknowledge();
+        }
+
+        $result = new Result($this->pusher);
+
         /**
          * Include the config file to access the database information
          *
@@ -112,51 +126,48 @@ class Backup implements CommandInterface {
             $msg = str_replace($password_parameter, '-p\'<PASS>\'', $msg);
             $trace = $e->getTraceAsString();
             $trace = str_replace($password_parameter, '-p\'<PASS>\'', $trace);
-            http_response_code(503);
-            echo json_encode([
+
+            $result(503, [
                 'success' => false,
                 'message' => 'Received an error trying to run mysqlbackup: ' . $msg,
                 'binary' => $mysqldump,
                 'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory),
                 'output' => $trace,
-            ], JSON_PRETTY_PRINT);
+            ]);
             return;
         }
         $output = $backupProcess->getErrorOutput() . ' ' . $backupProcess->getOutput();
         $output = str_replace($password_parameter, '-p\'<PASS>\'', $output);
         if (!$backupProcess->isSuccessful()) {
-            http_response_code(503);
             $code = $backupProcess->getExitCode();
             if ($code === 127) {
-                echo json_encode([
+                $result(503, [
                     'success' => false,
                     'message' => 'Could not find the mysqldump program on your server; please configure the sitedashclient.mysqldump_binary system setting to point to mysqldump to create backups.',
                     'binary' => $mysqldump,
                     'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory),
                     'output' => $output,
-                ], JSON_PRETTY_PRINT);
+                ]);
                 return;
             }
 
-            echo json_encode([
+            $result(503, [
                 'success' => false,
                 'message' => 'Received exit code ' . $code . ' trying to create a database backup using ' . $mysqldump . ' with message: ' . $output,
                 'output' => $output,
                 'return' => $code,
-            ], JSON_PRETTY_PRINT);
+            ]);
             return;
         }
 
         $backupSize = filesize($targetFile);
         if ($backupSize < 150 * 1024) { // a clean install is ~ 200kb, so we ask for at least 150
-            http_response_code(503);
-
-            echo json_encode([
+            $result(503, [
                 'success' => false,
                 'message' => 'While the backup with ' . $mysqldump . ' did not indicate an error, the mysql backup is only ' . number_format($backupSize / 1024, 0) . 'kb in size, so it probably failed.',
                 'output' => $output,
                 'return' => $backupProcess->getExitCode(),
-            ], JSON_PRETTY_PRINT);
+            ]);
             return;
         }
 
@@ -179,11 +190,10 @@ class Backup implements CommandInterface {
             }
         }
 
-        http_response_code(200);
-        echo json_encode([
+        $result(200, [
             'success' => true,
             'directory' => str_replace(MODX_CORE_PATH, '', $this->targetDirectory),
-        ], JSON_PRETTY_PRINT);
+        ]);
     }
 
     private function createDirectory($target)

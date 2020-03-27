@@ -45,6 +45,15 @@ if (!$sdc->isValidRequest($siteKey, $signature, $_POST)) {
 // Make sure the params are sanitized
 $params = $modx::sanitize($_POST);
 
+$pusher = null;
+if (array_key_exists('_return_push', $_POST) && array_key_exists('_return_push_key', $_POST)) {
+    $server = $modx->getOption('sitedash.server_uri', null, 'https://sitedash.app/', true);
+    $responseUri = (string)$_POST['_return_push'];
+    $signingKey = (string)$_POST['_return_push_key'];
+
+    $pusher = new \modmore\SiteDashClient\Communication\Pusher($server, $responseUri, $signingKey);
+}
+
 switch ($params['request']) {
     case 'system':
     case 'system/refresh':
@@ -96,7 +105,7 @@ switch ($params['request']) {
 
 
     case 'upgrade/backup':
-        $cmd = new \modmore\SiteDashClient\Upgrade\Backup($modx);
+        $cmd = new \modmore\SiteDashClient\Upgrade\Backup($modx, $pusher);
         $cmd->run();
         break;
 
