@@ -89,8 +89,15 @@ class Backup implements CommandInterface {
         if ($mysqldump === null) {
             $mysqldump = $this->modx->getOption('sitedashclient.mysqldump_binary', null, 'mysqldump', true);
         }
-        $cmd = "{$mysqldump} -u{$database_user} {$password_parameter} -h {$database_server} {$dbase}";
-        $cmd .= " > {$targetFile}";
+        $cmd = [$mysqldump, "-u{$database_user}", $password_parameter, "-h {$database_server}", $dbase];
+
+        $excludes = ['modSession'];
+        foreach ($excludes as $exclude) {
+            $table = trim($this->modx->getTableName($exclude, false), '`');
+            $cmd[] = "--ignore-table=\"{$dbase}.{$table}\"";
+        }
+
+        $cmd = implode(' ', $cmd) . " > {$targetFile}";
 
         $backupProcess = new Process($cmd);
         $backupProcess->setTimeout(120);
