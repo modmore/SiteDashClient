@@ -70,13 +70,13 @@ class Update implements CommandInterface
             'signature' => $this->packageSignature,
         ]);
 
-        if (!$this->package instanceof \modTransportPackage) {
+        if (!$this->package) {
             throw new \RuntimeException('Package does not seem to be installed; can only update packages that are already installed.');
         }
         $this->log('Found package ' . $this->package->get('signature'));
 
         $this->provider =& $this->package->getOne('Provider');
-        if (!$this->provider instanceof \modTransportProvider) {
+        if (!$this->provider) {
             throw new \RuntimeException('Package does not have an associated package provider; can\'t update.');
         }
         $un = $this->provider->get('username');
