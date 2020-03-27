@@ -16,6 +16,10 @@ class Refresh implements CommandInterface {
     {
         $data = [];
         $data['client'] = \SiteDashClient::VERSION;
+        $data['client_options'] = [
+            'supports_return_push' => false,
+            'supports_async_execute' => false,
+        ];
         $data['modx'] = $this->getMODXData();
         $data['server'] = $this->getServerInformation();
         $data['packages'] = $this->getPackages();
