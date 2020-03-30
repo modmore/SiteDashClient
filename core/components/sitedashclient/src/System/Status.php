@@ -155,7 +155,7 @@ class Status implements CommandInterface {
                     }
 
                     // Free memory
-                    if (count($statLineData) === 2 && trim($statLineData[0]) === 'MemFree') {
+                    if (count($statLineData) === 2 && trim($statLineData[0]) === 'MemAvailable') {
                         $memoryFree = trim($statLineData[1]);
                         $memoryFree = explode(' ', $memoryFree);
                         $memoryFree = $memoryFree[0];
