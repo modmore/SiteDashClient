@@ -1,3 +1,7 @@
+SiteDash Client 1.3.3-pl
+-------------------------
+Released on 2020-03-31
+
 - Fix updating packages on MODX 3 (tested with alpha2)
 - Fix memory monitoring using the wrong value (MemFree instead of MemAvailable) causing elevated memory values [S22408]
 
