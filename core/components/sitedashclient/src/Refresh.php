@@ -90,7 +90,9 @@ class Refresh implements CommandInterface {
         $data['disk_total_space'] = @disk_total_space(MODX_BASE_PATH);
         $data['memory_limit'] = ini_get('memory_limit');
         $data['max_execution_time'] = ini_get('max_execution_time');
-        
+        $data['session_gc_probability'] = (int)ini_get('session.gc_probability');
+        $data['session_gc_divisor'] = (int)ini_get('session.gc_divisor');
+
         $data['server_addr'] = array_key_exists('SERVER_ADDR', $_SERVER) ? $_SERVER['SERVER_ADDR'] : null;
         $data['server_name'] = array_key_exists('SERVER_NAME', $_SERVER) ? $_SERVER['SERVER_NAME'] : null;
         $data['server_software'] = array_key_exists('SERVER_SOFTWARE', $_SERVER) ? $_SERVER['SERVER_SOFTWARE'] : null;
