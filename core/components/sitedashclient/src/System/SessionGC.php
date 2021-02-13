@@ -12,6 +12,7 @@ class SessionGC implements CommandInterface {
         echo json_encode([
             'success' => $cleared !== false,
             'messaged' => "Cleared {$cleared} sessions.",
+            'cleared' => (int)$cleared,
         ], JSON_PRETTY_PRINT);
     }
 }
