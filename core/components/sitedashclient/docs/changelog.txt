@@ -1,3 +1,7 @@
+SiteDash Client 1.4.0-rc1
+-------------------------
+Released on 2021-02-13
+
 - Allow the client to run the PHP session garbage control remotely
 - Client now provides session-related server configuration values which the dashboard can use to determine if it should run the session garbage control
 
