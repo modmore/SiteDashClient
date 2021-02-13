@@ -84,7 +84,7 @@ switch ($params['request']) {
         break;
 
     case 'system/sessiongc':
-        $cmd = new \modmore\SiteDashClient\System\SessionGC();
+        $cmd = new \modmore\SiteDashClient\System\SessionGC($modx);
         $cmd->run();
         break;
 
