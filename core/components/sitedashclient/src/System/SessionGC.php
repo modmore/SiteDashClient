@@ -17,7 +17,14 @@ class SessionGC implements CommandInterface
 
     public function run()
     {
+        // Work-around a lack of session results by comparing a before/after count if session_gc returns 1 https://github.com/modxcms/revolution/pull/15393
+        // @todo replace this with a version check once merged, to avoid the getCount() lookup time when unnecessary
+        $before = $this->modx->getCount('modSession');
         $cleared = session_gc();
+
+        if ($cleared === 1) {
+            $cleared = $before - $this->modx->getCount('modSession');
+        }
 
         // Get updated session health data
         $health = [];
