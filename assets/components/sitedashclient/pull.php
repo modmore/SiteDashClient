@@ -94,6 +94,11 @@ switch ($params['request']) {
         $cmd->run();
         break;
 
+    case 'package/revert':
+        $package = isset($params['params']['package']) && !empty($params['params']['package']) ? (string)$params['params']['package'] : '';
+        $cmd = new \modmore\SiteDashClient\Package\Revert($modx, $package);
+        $cmd->run();
+        break;
 
     case 'upgrade/backup':
         $cmd = new \modmore\SiteDashClient\Upgrade\Backup($modx);
