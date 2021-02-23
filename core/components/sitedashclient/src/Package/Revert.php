@@ -11,8 +11,6 @@ class Revert implements CommandInterface
     protected $log = [];
     /** @var \modTransportPackage */
     protected $package;
-    /** @var \modTransportProvider */
-    protected $provider;
 
     public function __construct(\modX $modx, $signature = '')
     {
@@ -48,7 +46,7 @@ class Revert implements CommandInterface
         $this->_copyLogs($logs);
         $return = [
             'success' => true,
-            'signature' => $this->_signature,
+            'signature' => $this->package->get('signature'),
             'log' => $this->log,
         ];
 
@@ -56,7 +54,8 @@ class Revert implements CommandInterface
         echo json_encode($return, JSON_PRETTY_PRINT);
     }
 
-    protected function getVersionToRevert() {
+    protected function getVersionToRevert(): void
+    {
         if ($this->packageSignature === '') {
             throw new \RuntimeException('Empty package name');
         }
@@ -66,17 +65,12 @@ class Revert implements CommandInterface
         ]);
 
         if (!$this->package) {
-            throw new \RuntimeException('Package not found.');
+            throw new \RuntimeException('Package version not found.');
         }
         $this->log('Found package ' . $this->package->get('signature'));
-
-        $this->provider =& $this->package->getOne('Provider');
-        if (!$this->provider) {
-            throw new \RuntimeException('Package does not have an associated package provider; can\'t update.');
-        }
     }
 
-    protected function install()
+    protected function revert(): void
     {
         $this->log('Uninstalling ' . $this->package->get('signature') . '...');
         $reverted = $this->package->uninstall([
