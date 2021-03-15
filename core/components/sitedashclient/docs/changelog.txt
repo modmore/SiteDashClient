@@ -1,4 +1,4 @@
-- Implement alternative apprach to counting removed stale sessions to workaround https://github.com/modxcms/revolution/pull/15393 and allow SiteDash to make scheduling decisions
+- Implement alternative approach to counting removed stale sessions to workaround https://github.com/modxcms/revolution/pull/15393 and allow SiteDash to make scheduling decisions
 
 SiteDash Client 1.4.0-rc1
 -------------------------
