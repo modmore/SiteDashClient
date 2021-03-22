@@ -1,4 +1,5 @@
 - Implement alternative approach to counting removed stale sessions to workaround https://github.com/modxcms/revolution/pull/15393 and allow SiteDash to make scheduling decisions
+- Add extra parameter to the refresh endpoint to skip the session health check. SiteDash may use this in combination with a separate session gc call if refreshes timeout due to large session tables.
 
 SiteDash Client 1.4.0-rc1
 -------------------------
