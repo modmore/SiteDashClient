@@ -2,7 +2,6 @@
 
 namespace modmore\SiteDashClient\System;
 
-use modCacheManager;
 use modmore\SiteDashClient\CommandInterface;
 
 class SessionGC implements CommandInterface
@@ -17,12 +16,20 @@ class SessionGC implements CommandInterface
 
     public function run()
     {
+        if (!function_exists('session_gc') || PHP_VERSION_ID < 70100) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => "session_gc() not available",
+            ], JSON_PRETTY_PRINT);
+            return;
+        }
         // Work-around a lack of session results by comparing a before/after count if session_gc returns 1 https://github.com/modxcms/revolution/pull/15393
-        // @todo replace this with a version check once merged, to avoid the getCount() lookup time when unnecessary
-        $before = $this->modx->getCount('modSession');
-        $cleared = session_gc();
+        $brokenCount = version_compare($this->modx->getOption('settings_version'), '2.8.2-pl', '<');
+        $before = $brokenCount ? $this->modx->getCount('modSession') : 0;
+        $cleared = \session_gc();
 
-        if ($cleared === 1) {
+        if ($brokenCount) {
             $cleared = $before - $this->modx->getCount('modSession');
         }
 
@@ -44,7 +51,7 @@ class SessionGC implements CommandInterface
         // Return it all to the client
         echo json_encode([
             'success' => $cleared !== false,
-            'messaged' => "Cleared {$cleared} sessions.",
+            'message' => "Cleared {$cleared} sessions.",
             'cleared' => (int)$cleared,
             'health' => $health,
         ], JSON_PRETTY_PRINT);
