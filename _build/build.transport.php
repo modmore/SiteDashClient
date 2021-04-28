@@ -24,7 +24,7 @@ if (!defined('MOREPROVIDER_BUILD')) {
     define('PKG_NAME', 'SiteDashClient');
     define('PKG_NAME_LOWER', strtolower(PKG_NAME));
     define('PKG_VERSION', '1.4.0');
-    define('PKG_RELEASE', 'rc1');
+    define('PKG_RELEASE', 'pl');
 
     /* load modx */
     require_once dirname(dirname(__FILE__)) . '/config.core.php';
@@ -34,10 +34,7 @@ if (!defined('MOREPROVIDER_BUILD')) {
     $modx->setLogLevel(modX::LOG_LEVEL_INFO);
     $modx->setLogTarget('ECHO');
 
-
-    echo '<pre>';
-    flush();
-    $targetDirectory = dirname(dirname(__FILE__)) . '/_packages/';
+    $targetDirectory = dirname(__DIR__) . '/_packages/';
 }
 else {
     $targetDirectory = MOREPROVIDER_BUILD_TARGET;
