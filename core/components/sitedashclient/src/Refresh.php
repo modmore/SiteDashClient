@@ -37,6 +37,7 @@ class Refresh implements CommandInterface {
     {
         $data = [];
         $data['version'] = include MODX_CORE_PATH . 'docs/version.inc.php';
+        $data['version_db'] = $this->modx->getOption('settings_version', null, 'n/a');
         $data['client_url'] = $this->modx->getOption('sitedashclient.assets_url', null, $this->modx->getOption('assets_url') . 'components/sitedashclient/') . 'pull.php';
         $data['site_name'] = $this->modx->getOption('site_name');
         $data['manager_url'] = $this->modx->getOption('manager_url');
