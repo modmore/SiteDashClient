@@ -386,12 +386,15 @@ class Execute implements CommandInterface {
             ], JSON_PRETTY_PRINT);
             return;
         }
+
+        $output = $setupProcess->getOutput();
+        $this->log('Executed the setup, received output: ' . $output);
+
         if ($setupProcess->isSuccessful()) {
-            $this->log('Successfully executed the setup. ' . $setupProcess->getOutput());
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'output' => $setupProcess->getOutput(),
+                'output' => $output,
                 'return' => $setupProcess->getExitCode(),
                 'backupDirectory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory),
                 'downloadUrl' => $this->downloadUrl,
