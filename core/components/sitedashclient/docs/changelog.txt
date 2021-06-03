@@ -1,3 +1,7 @@
+SiteDash Client 1.4.1-pl
+-------------------------
+Released on 2021-06-03
+
 - Provide the installed MODX version alongside the version according to the filesystem for better upgrade checks [#233]
 
 SiteDash Client 1.4.0-pl
