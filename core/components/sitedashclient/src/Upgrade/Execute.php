@@ -367,6 +367,7 @@ class Execute implements CommandInterface {
             "--core_path={$corePath}",
             "--config_key={$configKey}",
         ]);
+        $setupProcess->setTimeout(90);
 
 
         $this->log('Running setup with command: ' . $setupProcess->getCommandLine());
