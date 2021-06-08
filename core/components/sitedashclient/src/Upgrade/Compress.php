@@ -98,7 +98,7 @@ class Compress implements CommandInterface {
             return;
         }
 
-        $this->log('Added files to zip file: ' . implode(' | ', $compressedFiles));
+        $this->log('Added ' . count($compressedFiles) . ' files to zip file');
 
         $deleted = [];
         foreach ($deleteFiles as $deleteFile) {
@@ -110,7 +110,7 @@ class Compress implements CommandInterface {
                 }
             }
         }
-        $this->log('Deleted uncompressed files: ' . implode(' | ', $deleted));
+        $this->log('Deleted ' . count($deleted) . ' uncompressed files');
 
         $this->cleanEmptyFolders($this->backupDirectory);
 
