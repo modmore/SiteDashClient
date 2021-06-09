@@ -120,7 +120,7 @@ class Execute implements CommandInterface {
 
         $output = $process->getOutput();
 
-        $this->log('PHP Version check: ' . $output);
+        $this->log('PHP Version check: ' . $output, modX::LOG_LEVEL_INFO);
 
         if (!$process->isSuccessful()) {
             http_response_code(503);
@@ -461,7 +461,7 @@ class Execute implements CommandInterface {
         $output = $setupProcess->getOutput();
         $this->log('Setup result: ' . $output, modX::LOG_LEVEL_INFO);
 
-        if ($setupProcess->isSuccessful()) {
+        if ($setupProcess->isSuccessful() && strpos($output, 'Installation finished in') === 0) {
             $this->modx->log(modX::LOG_LEVEL_INFO, 'Setup appears to have been successful.');
             http_response_code(200);
             echo json_encode([
@@ -481,7 +481,7 @@ class Execute implements CommandInterface {
         http_response_code(501);
         echo json_encode([
             'success' => false,
-            'message' => 'Received exit code ' . $setupProcess->getExitCode() . ' running the setup with error: ' . $errorOutput,
+            'message' => 'Failed running the setup: ' . $output . ' ' . $errorOutput . ' ( code ' . $setupProcess->getExitCode() . ')',
             'output' => $output,
             'error_output' => $errorOutput,
             'backupDirectory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory),
