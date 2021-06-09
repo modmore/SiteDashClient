@@ -4,6 +4,9 @@ Released on 2021-06-03
 
 - Provide the installed MODX version alongside the version according to the filesystem for better upgrade checks [#233]
 - Increase upgrade timeout from 60 to 90 seconds
+- Greatly reduce the verbosity of the upgrade and backup compression log in the dashboard, instead writing a verbose log locally to core/cache/logs/
+- Improve detection of invalid PHP executables (command line command being interpreted as web request or too old version) [#240]
+- The sitedashclient.php_binary system setting will now take precedence over the automatically identified executable, to allow resolving issues with invalid PHP executables - only hardcode this if you cannot run the MODX remote upgrade without it!
 
 SiteDash Client 1.4.0-pl
 -------------------------

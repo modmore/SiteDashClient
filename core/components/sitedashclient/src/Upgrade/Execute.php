@@ -18,11 +18,22 @@ class Execute implements CommandInterface {
     protected $files = [];
     protected $backupDirectory;
     protected $downloadUrl = '';
+    protected $logFileName = '';
     private $logs = [];
 
     public function __construct(modX $modx, $backupDir, $targetVersion, $nightly)
     {
         $this->modx = $modx;
+        $this->logFileName = 'sitedash_upgrade_' . date('Y-m-d_His') . '.log';
+
+        $this->modx->setLogLevel(modX::LOG_LEVEL_INFO);
+        $this->modx->setLogTarget([
+            'target' => 'FILE',
+            'options' => [
+                'filename' => $this->logFileName,
+            ]
+        ]);
+        $this->modx->log(modX::LOG_LEVEL_INFO, 'Initialising remote SiteDash upgrade');
 
         $backupDir = preg_replace(array("/\.*[\/|\\\]/i", "/[\/|\\\]+/i"), array('/', '/'), $backupDir);
         $this->backupDirectory = MODX_CORE_PATH . rtrim($backupDir, '/') . '/';
@@ -38,6 +49,7 @@ class Execute implements CommandInterface {
     public function run()
     {
         if (!file_exists($this->backupDirectory) || !is_dir($this->backupDirectory)) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to resolve backup directory ' . $this->backupDirectory);
             http_response_code(400);
             echo json_encode([
                 'success' => false,
@@ -48,6 +60,7 @@ class Execute implements CommandInterface {
         }
 
         if ($this->downloadUrl === '') {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to resolve download url from SiteDash request');
             http_response_code(400);
             echo json_encode([
                 'success' => false,
@@ -58,6 +71,7 @@ class Execute implements CommandInterface {
         }
 
         if (!class_exists(ZipArchive::class)) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Zip extension not installed.');
             http_response_code(400);
             echo json_encode([
                 'success' => false,
@@ -66,29 +80,34 @@ class Execute implements CommandInterface {
             return;
         }
 
-        $this->log('Need to revert the upgrade? A backup of the database and files are stored in: ' . str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory));
+        $this->log('Backup of the database and changed files can be found in ' . str_replace(MODX_CORE_PATH, '{core_path}', rtrim($this->backupDirectory, '/')));
+        $this->log('Verbose upgrade log can be found in {core_path}logs/' . $this->logFileName);
 
-        $phpBinaryFinder = new PhpExecutableFinder();
-        $phpExecutable = $phpBinaryFinder->find();
-        if (!$phpExecutable) {
-            $configuredExecutable = (string)$this->modx->getOption('sitedashclient.php_binary', null, '');
-            if (!empty($configuredExecutable) && stripos($configuredExecutable, 'php') !== false) {
-                $phpExecutable = trim($configuredExecutable);
-                $this->log('Could not find PHP executable; falling back to configured binary `' . $configuredExecutable . '`');
+        $configuredExecutable = trim((string)$this->modx->getOption('sitedashclient.php_binary', null, ''));
+        if (!empty($configuredExecutable) && stripos($configuredExecutable, 'php') !== false) {
+            $phpExecutable = $configuredExecutable;
+            $this->log('Using user-configured PHP binary `' . $configuredExecutable . '`', modX::LOG_LEVEL_WARN);
+        }
+        else {
+            $phpBinaryFinder = new PhpExecutableFinder();
+            $phpExecutable = $phpBinaryFinder->find();
+            if (!$phpExecutable) {
+                $phpExecutable = 'php';
+                $this->log('Could not find PHP executable; falling back to default `php`', modX::LOG_LEVEL_WARN);
             }
             else {
-                $this->log('Could not find PHP executable; falling back to default `php`');
-                $phpExecutable = 'php';
+                $this->log('Using automatically detected `' . $phpExecutable . '`', modX::LOG_LEVEL_INFO);
             }
         }
-        $this->log('Testing PHP executable: `' . $phpExecutable . ' --version`');
+        $this->log('Testing PHP executable: `' . $phpExecutable . ' --version`', modX::LOG_LEVEL_INFO);
 
         $process = new Process([$phpExecutable, '--version']);
-        $process->setTimeout(120);
-        $process->setIdleTimeout(120);
+        $process->setTimeout(10);
+        $process->setIdleTimeout(10);
         try {
             $process->run();
         } catch (Exception $e) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, get_class($e) . ' attempting to check PHP version: ' . $e->getMessage());
             http_response_code(503);
             echo json_encode([
                 'success' => false,
@@ -99,23 +118,59 @@ class Execute implements CommandInterface {
             return;
         }
 
+        $output = $process->getOutput();
+
+        $this->log('PHP Version check: ' . $output);
+
         if (!$process->isSuccessful()) {
             http_response_code(503);
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'PHP version check unsuccessful');
             echo json_encode([
                 'success' => false,
                 'message' => 'Received an error checking the PHP version with command: ' . $process->getCommandLine(),
-                'output' => $process->getOutput() . '/' . $process->getErrorOutput(),
+                'output' => $output . ' // ' . $process->getErrorOutput(),
                 'logs' => $this->logs,
             ], JSON_PRETTY_PRINT);
             return;
         }
 
-        $this->log('PHP Version: ' . $process->getOutput());
+        // Make sure we get an expected PHP version
+        if (preg_match("/PHP (\d+.\d+.\d+)/i", $output, $matches)) {
+            $v = $matches[1] ?? '';
+            if (!$v || version_compare($v, '5.6.0', '<')) {
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'PHP version check returned version  "' . $v . '" which is not valid or older than 5.6');
+                http_response_code(503);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Unable to run PHP in command line mode, `' . $process->getCommandLine() . '` returned version number "' . $v . '" which is either invalid or below the minimum required to install MODX.',
+                    'output' => $output . ' // ' . $process->getErrorOutput(),
+                    'logs' => $this->logs,
+                    'errcode' => 'php-invalid-or-eol',
+                ], JSON_PRETTY_PRINT);
+                return;
+            }
+        }
+        else {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'PHP version check did not return the PHP version, suggests an invalid binary.');
+            http_response_code(503);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Unable to run PHP in command line mode, `' . $process->getCommandLine() . '` did not return valid output.',
+                'output' => $output . ' // ' . $process->getErrorOutput(),
+                'logs' => $this->logs,
+                'errcode' => 'php-no-bin',
+            ], JSON_PRETTY_PRINT);
+            return;
+        }
+
+        $this->modx->log(modX::LOG_LEVEL_INFO, 'Pre-install checks successful.');
 
         $downloadTarget = $this->backupDirectory . 'download/';
         $this->createDirectory($downloadTarget);
         $zipTarget = $downloadTarget . 'modx.zip';
         $this->log('Downloading MODX from ' . $this->downloadUrl);
+
+        $this->modx->log(modX::LOG_LEVEL_INFO, 'Downloading MODX from ' . $this->downloadUrl . ' to ' . $downloadTarget);
 
         $fp = fopen ($zipTarget, 'w+');
         $ch = curl_init($this->downloadUrl);
@@ -129,7 +184,7 @@ class Execute implements CommandInterface {
          */
         $proxyHost = $this->modx->getOption('proxy_host');
         if (!empty($proxyHost)) {
-            $this->log('Downloading through configured proxy "' . $proxyHost . '"');
+            $this->log('Downloading through configured proxy "' . $proxyHost . '"', modX::LOG_LEVEL_INFO);
             curl_setopt($ch, CURLOPT_PROXY, $proxyHost);
             $proxyPort = $this->modx->getOption('proxy_port',null,'');
             if (!empty($proxyPort)) {
@@ -157,6 +212,7 @@ class Execute implements CommandInterface {
         fclose($fp);
 
         if (!file_exists($zipTarget) || filesize($zipTarget) < (5 * 1024 * 1024)) { // a zip file < 5mb is definitely not valid
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Download failed');
             http_response_code(501);
             echo json_encode([
                 'success' => false,
@@ -171,9 +227,11 @@ class Execute implements CommandInterface {
 
         $this->log('MODX downloaded!');
         $this->log('Unzipping download...');
+        $this->modx->log(modX::LOG_LEVEL_INFO, 'Download complete, unzipping with ZipArchive...');
 
         $zip = new ZipArchive();
         if ($zip->open($zipTarget) !== true) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed opening ' . $zipTarget . ' with ZipArchive');
             http_response_code(501);
             echo json_encode([
                 'success' => false,
@@ -188,6 +246,7 @@ class Execute implements CommandInterface {
         }
 
         if (!$zip->extractTo($downloadTarget)) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed extracting ' . $zipTarget . ' to ' . $downloadTarget . ' with ZipArchive');
             http_response_code(501);
             echo json_encode([
                 'success' => false,
@@ -202,8 +261,6 @@ class Execute implements CommandInterface {
 
         unlink($zipTarget);
 
-        $this->log('Unzipped files, pre-processing files... ');
-
         // Find the root folder - these are named `modx-2.6.5-pl` for example inside the zip
         $rootFolder = false;
         $rootFolderCandidates = array_diff(scandir($downloadTarget, SCANDIR_SORT_ASCENDING), ['.', '..']);
@@ -214,6 +271,7 @@ class Execute implements CommandInterface {
             }
         }
         if (empty($rootFolder) || !is_dir($downloadTarget . $rootFolder)) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, 'Failed to find root folder in the zip or ' . $downloadTarget . $rootFolder . ' is not a directory');
             http_response_code(501);
             echo json_encode([
                 'success' => false,
@@ -226,20 +284,22 @@ class Execute implements CommandInterface {
             return;
         }
 
+        $this->log('Moving files out of download directory... ', modX::LOG_LEVEL_INFO);
+
         $rootFolder .= '/';
         $files = array_diff(scandir($downloadTarget . $rootFolder, SCANDIR_SORT_ASCENDING), ['.', '..']);
 
         foreach ($files as $dlFile) {
             if (!rename($downloadTarget . $rootFolder . $dlFile, $downloadTarget . $dlFile)) {
-                $this->log('Failed moving ' . $downloadTarget . $rootFolder . $dlFile . ' => ' . $downloadTarget . $dlFile);
+                $this->log('Failed moving ' . $downloadTarget . $rootFolder . $dlFile . ' => ' . $downloadTarget . $dlFile, modX::LOG_LEVEL_ERROR);
             }
         }
 
         if (!rmdir($downloadTarget . $rootFolder)) {
-            $this->log('Failed removing directory ' . $downloadTarget . $rootFolder);
+            $this->log('Failed removing directory ' . $downloadTarget . $rootFolder, modX::LOG_LEVEL_ERROR);
         }
 
-        $this->log('Processing files... ');
+        $this->log('Processing files... ', modX::LOG_LEVEL_INFO);
 
         $backupFiles = [];
         $overwrittenFiles = [];
@@ -281,24 +341,30 @@ class Execute implements CommandInterface {
                 $targetHash = hash_file('sha256', $targetPath);
                 $dlHash = hash_file('sha256', $dlPath);
                 if ($targetHash !== $dlHash) {
-                    $backupFiles[] = $dlPathClean;
                     $backupPath = $this->backupDirectory . 'files/' . str_replace([MODX_CORE_PATH, MODX_BASE_PATH], ['core/', ''], $targetPath);
                     $this->createDirectory(dirname($backupPath));
-                    if (!copy($targetPath, $backupPath)) {
-                        $this->log('Could not copy file to backup: ' . $targetPath);
+
+                    if (copy($targetPath, $backupPath)) {
+                        $backupFiles[] = $dlPathClean;
+                        $this->modx->log(modX::LOG_LEVEL_INFO, 'Backed up original ' . $targetPath);
+                    }
+                    else {
+                        $this->log('Could not copy file to backup: ' . $targetPath, modX::LOG_LEVEL_ERROR);
                     }
 
                     // Handle the file - skip it, or copy it
                     if ($this->shouldFileBeSkipped($dlPathClean)) {
+                        $this->modx->log(modX::LOG_LEVEL_INFO, 'Skipped file ' . $dlPathClean);
                         $skippedFiles[] = $dlPathClean;
                         unlink($dlPath);
                     }
                     elseif (copy($dlPath, $targetPath)) {
+                        $this->modx->log(modX::LOG_LEVEL_INFO, 'Overwrite file ' . $targetPath . ' from ' . $dlPathClean);
                         $overwrittenFiles[] = $dlPathClean;
                         unlink($dlPath);
                     }
                     else {
-                        $this->log('Failed overwriting ' . $targetPath . ' with contents of downloaded ' . $dlPathClean);
+                        $this->log('Failed overwriting ' . $targetPath . ' with contents of downloaded ' . $dlPathClean, modX::LOG_LEVEL_ERROR);
                     }
                 }
                 // downloaded + target file are the same
@@ -310,28 +376,30 @@ class Execute implements CommandInterface {
             else {
                 $this->createDirectory(dirname($targetPath));
                 if (copy($dlPath, $targetPath)) {
+                    $this->modx->log(modX::LOG_LEVEL_INFO, 'Created file ' . $targetPath . ' from ' . $dlPathClean);
                     $createdFiles[] = $dlPathClean;
+                    unlink($dlPath);
                 }
                 else {
-                    $this->log('Failed writing ' . $targetPath . ' with contents of downloaded ' . $dlPathClean);
+                    $this->log('Failed writing ' . $targetPath . ' with contents of downloaded ' . $dlPathClean, modX::LOG_LEVEL_ERROR);
                 }
             }
         }
 
         if (count($backupFiles) > 0) {
-            $this->log('Backed up files: ' . implode(' | ', $backupFiles));
+            $this->log('Backed up ' . count($backupFiles) . ' file(s)');
         }
         if (count($skippedFiles) > 0) {
-            $this->log('Skipped overwriting files: ' . implode(' | ', $skippedFiles));
+            $this->log('Skipped ' . count($skippedFiles) . ' file(s)');
         }
         if (count($overwrittenFiles) > 0) {
-            $this->log('Overwritten files: ' . implode(' | ', $overwrittenFiles));
+            $this->log('Overwritten ' . count($overwrittenFiles) . ' file(s)');
         }
         if (count($createdFiles) > 0) {
-            $this->log('Created files: ' . implode(' | ', $createdFiles));
+            $this->log('Created ' . count($createdFiles) . ' new file(s)');
         }
 
-        $this->log('Completed pre-processing files and backing up files that changed.');
+        $this->log('Completed pre-processing files and backing up files that changed.', modX::LOG_LEVEL_INFO);
         $this->log('Creating configuration file for running setup...');
 
         $config = array(
@@ -353,6 +421,8 @@ class Execute implements CommandInterface {
         fwrite($fh, $xml->saveXML());
         fclose($fh);
 
+        $this->modx->log(modX::LOG_LEVEL_INFO, 'Created setup XML: ' . file_get_contents($this->backupDirectory . 'modx-setup.xml'));
+
         $tz = date_default_timezone_get();
         $wd = MODX_BASE_PATH;
         $corePath = MODX_CORE_PATH;
@@ -369,12 +439,12 @@ class Execute implements CommandInterface {
         ]);
         $setupProcess->setTimeout(90);
 
-
-        $this->log('Running setup with command: ' . $setupProcess->getCommandLine());
+        $this->log('Running setup with command: ' . $setupProcess->getCommandLine(), modX::LOG_LEVEL_INFO);
 
         try {
             $setupProcess->run();
         } catch (Exception $e) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, get_class($e) . ' running setup: ' . $e->getMessage() . ' // '. $e->getTraceAsString());
             http_response_code(503);
             echo json_encode([
                 'success' => false,
@@ -389,9 +459,10 @@ class Execute implements CommandInterface {
         }
 
         $output = $setupProcess->getOutput();
-        $this->log('Executed the setup, received output: ' . $output);
+        $this->log('Setup result: ' . $output, modX::LOG_LEVEL_INFO);
 
         if ($setupProcess->isSuccessful()) {
+            $this->modx->log(modX::LOG_LEVEL_INFO, 'Setup appears to have been successful.');
             http_response_code(200);
             echo json_encode([
                 'success' => true,
@@ -405,12 +476,14 @@ class Execute implements CommandInterface {
             return;
         }
 
+        $errorOutput = $setupProcess->getErrorOutput();
+        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Setup appears to have failed with exit code ' . $setupProcess->getExitCode());
         http_response_code(501);
         echo json_encode([
             'success' => false,
-            'message' => 'Received exit code ' . $setupProcess->getExitCode() . ' running the setup with error: ' . $setupProcess->getErrorOutput(),
-            'output' => $setupProcess->getOutput(),
-            'error_output' => $setupProcess->getErrorOutput(),
+            'message' => 'Received exit code ' . $setupProcess->getExitCode() . ' running the setup with error: ' . $errorOutput,
+            'output' => $output,
+            'error_output' => $errorOutput,
             'backupDirectory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->backupDirectory),
             'downloadUrl' => $this->downloadUrl,
             'modxDownload' => str_replace(MODX_CORE_PATH, '{core_path}', $zipTarget),
@@ -429,11 +502,14 @@ class Execute implements CommandInterface {
         return true;
     }
 
-    private function log($msg) {
+    private function log($msg, $logToMODX = 0) {
         $this->logs[] = [
             'timestamp' => time(),
             'message' => $msg,
         ];
+        if ($logToMODX > 0) {
+            $this->modx->log($logToMODX, $msg);
+        }
     }
 
     private function shouldFileBeSkipped($filePath)
