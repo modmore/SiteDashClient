@@ -122,6 +122,11 @@ switch ($params['request']) {
         $cmd->run();
         break;
 
+    case 'communication/test-async-push':
+        $cmd = new \modmore\SiteDashClient\Communication\TestAsyncPush($pusher);
+        $cmd->run();
+        break;
+
     default:
         http_response_code(400);
         echo json_encode([
