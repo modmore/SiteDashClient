@@ -46,12 +46,11 @@ if (!$sdc->isValidRequest($siteKey, $signature, $_POST)) {
 $params = $modx::sanitize($_POST);
 
 $pusher = null;
-if (array_key_exists('_return_push', $_POST) && array_key_exists('_return_push_key', $_POST)) {
+if (array_key_exists('_return_push', $_POST) && !empty($_POST['_return_push'])) {
     $server = $modx->getOption('sitedash.server_uri', null, 'https://sitedash.app/', true);
     $responseUri = (string)$_POST['_return_push'];
-    $signingKey = (string)$_POST['_return_push_key'];
 
-    $pusher = new \modmore\SiteDashClient\Communication\Pusher($server, $responseUri, $signingKey);
+    $pusher = new \modmore\SiteDashClient\Communication\Pusher($server, $responseUri);
 }
 
 switch ($params['request']) {

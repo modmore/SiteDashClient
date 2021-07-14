@@ -4,12 +4,10 @@ namespace modmore\SiteDashClient\Communication;
 
 final class Pusher {
     private $responseUri;
-    private $signingKey;
 
-    public function __construct($server, $responseUri, $signingKey)
+    public function __construct($server, $responseUri)
     {
         $this->responseUri = $server . $responseUri;
-        $this->signingKey = base64_decode($signingKey);
     }
 
     public function acknowledge()
@@ -71,9 +69,7 @@ final class Pusher {
         $dataFormat = json_encode($data, JSON_PRETTY_PRINT);
         $postDataFormat = json_encode($postData, JSON_PRETTY_PRINT);
         $log = <<<HTML
-Push requested to {$this->responseUri} with one-time use signing key:
-
-{$this->signingKey} 
+Push request to {$this->responseUri}:
 
 Data: {$dataFormat}
 
@@ -89,21 +85,6 @@ HTML;
 
     private function prepareData(array $data)
     {
-        return [
-            'data' => $data,
-            'signature' => $this->sign($data),
-        ];
-    }
-
-    private function sign(array $data)
-    {
-        $sigData = json_encode($data);
-
-        $binary_signature = '';
-        openssl_sign($sigData, $binary_signature, $this->signingKey, OPENSSL_ALGO_SHA1);
-
-        // Encode it as base64
-        $binary_signature = base64_encode($binary_signature);
-        return $binary_signature;
+        return $data;
     }
 }
