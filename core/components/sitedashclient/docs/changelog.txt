@@ -1,3 +1,5 @@
+- Fix typo causing server_protocol not being returned
+
 SiteDash Client 1.4.1-pl
 -------------------------
 Released on 2021-06-09

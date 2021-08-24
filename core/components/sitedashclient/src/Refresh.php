@@ -97,7 +97,7 @@ class Refresh implements CommandInterface {
         $data['server_addr'] = array_key_exists('SERVER_ADDR', $_SERVER) ? $_SERVER['SERVER_ADDR'] : null;
         $data['server_name'] = array_key_exists('SERVER_NAME', $_SERVER) ? $_SERVER['SERVER_NAME'] : null;
         $data['server_software'] = array_key_exists('SERVER_SOFTWARE', $_SERVER) ? $_SERVER['SERVER_SOFTWARE'] : null;
-        $data['server_protocol'] = array_key_exists('SERVER_PROTOCOL', $_SERVER) ? $_SERVER['SERVER_PRO'] : null;
+        $data['server_protocol'] = array_key_exists('SERVER_PROTOCOL', $_SERVER) ? $_SERVER['SERVER_PROTOCOL'] : null;
 
         $data['https'] = array_key_exists('HTTPS', $_SERVER) ? $_SERVER['HTTPS'] : null;
 
