@@ -45,6 +45,14 @@ if (!$sdc->isValidRequest($siteKey, $signature, $_POST)) {
 // Make sure the params are sanitized
 $params = $modx::sanitize($_POST);
 
+$pusher = null;
+if (array_key_exists('_return_push', $_POST) && !empty($_POST['_return_push'])) {
+    $server = $modx->getOption('sitedash.server_uri', null, 'https://sitedash.app/', true);
+    $responseUri = (string)$_POST['_return_push'];
+
+    $pusher = new \modmore\SiteDashClient\Communication\Pusher($server, $responseUri);
+}
+
 switch ($params['request']) {
     case 'system':
     case 'system/refresh':
@@ -96,7 +104,7 @@ switch ($params['request']) {
 
 
     case 'upgrade/backup':
-        $cmd = new \modmore\SiteDashClient\Upgrade\Backup($modx);
+        $cmd = new \modmore\SiteDashClient\Upgrade\Backup($modx, $pusher);
         $cmd->run();
         break;
 
@@ -111,6 +119,11 @@ switch ($params['request']) {
     case 'upgrade/compress':
         $backupDir = isset($params['params']['backup']) && !empty($params['params']['backup']) ? (string)$params['params']['backup'] : '';
         $cmd = new \modmore\SiteDashClient\Upgrade\Compress($modx, $backupDir);
+        $cmd->run();
+        break;
+
+    case 'communication/test-async-push':
+        $cmd = new \modmore\SiteDashClient\Communication\TestAsyncPush($pusher);
         $cmd->run();
         break;
 
