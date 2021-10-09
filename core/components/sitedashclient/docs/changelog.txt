@@ -1,3 +1,8 @@
+SiteDash Client 1.5.0-pl
+-------------------------
+Released on 2021-10-11
+
+- New: search for users, see https://sitedash.app/dashboard/users
 - Fix typo causing server_protocol not being returned
 
 SiteDash Client 1.4.1-pl
