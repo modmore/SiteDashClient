@@ -75,6 +75,17 @@ if (!createObject('modSystemSetting', [
   echo "Error creating assets_url setting.\n";
 }
 
+if (!createObject('modSystemSetting', [
+  'key' => PKG_NAME_LOWER . '.allow_user_search',
+  'value' => true,
+  'xtype' => 'modx-combo-boolean',
+  'namespace' => PKG_NAME_LOWER,
+  'area' => 'security',
+  'editedon' => time(),
+], 'key', false)) {
+  echo "Error creating allow_user_search setting.\n";
+}
+
 // Menu
 //
 //if (!createObject('modMenu', [

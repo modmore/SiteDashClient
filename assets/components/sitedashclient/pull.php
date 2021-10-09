@@ -114,6 +114,12 @@ switch ($params['request']) {
         $cmd->run();
         break;
 
+    case 'users':
+        $query = isset($params['params']['query']) && !empty($params['params']['query']) ? (string)$params['params']['query'] : '';
+        $cmd = new \modmore\SiteDashClient\Users($modx, $query);
+        $cmd->run();
+        break;
+
     default:
         http_response_code(400);
         echo json_encode([
