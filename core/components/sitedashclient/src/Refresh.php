@@ -74,6 +74,7 @@ class Refresh implements CommandInterface {
     {
         $data = [];
         $data['php_version'] = PHP_VERSION;
+        $data['php_extensions'] = function_exists('get_loaded_extensions') ? get_loaded_extensions() : [];
 
         global $database_dsn;
         $data['database_dsn'] = isset($database_dsn) ? $database_dsn : '';
