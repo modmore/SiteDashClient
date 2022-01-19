@@ -88,8 +88,8 @@ class Refresh implements CommandInterface {
             $data['database_server_info'] = $pdoInstance->getAttribute(\PDO::ATTR_SERVER_INFO);
         }
 
-        $data['disk_free_space'] = @disk_free_space(MODX_BASE_PATH);
-        $data['disk_total_space'] = @disk_total_space(MODX_BASE_PATH);
+        $data['disk_free_space'] = function_exists('disk_free_space') ? @disk_free_space(MODX_BASE_PATH) : false;
+        $data['disk_total_space'] = function_exists('disk_total_space') ? @disk_total_space(MODX_BASE_PATH) : false;
         $data['memory_limit'] = ini_get('memory_limit');
         $data['max_execution_time'] = ini_get('max_execution_time');
         $data['session_gc_probability'] = (int)ini_get('session.gc_probability');
