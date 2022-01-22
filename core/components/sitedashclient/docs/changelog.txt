@@ -1,3 +1,7 @@
+SiteDash Client 1.6.0-pl
+-------------------------
+Released on 2022-01-22
+
 - New: provide loaded PHP extensions in refreshes
 - New: extra endpoint to check for specific MODX3 incompatibilities (modAction uses, TVs with @EVAL)
 - Fix error when disk space functions are disabled
