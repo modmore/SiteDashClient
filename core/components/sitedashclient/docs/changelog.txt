@@ -1,4 +1,6 @@
 - New: provide loaded PHP extensions in refreshes
+- New: extra endpoint to check for specific MODX3 incompatibilities (modAction uses, TVs with @EVAL)
+- Fix error when disk space functions are disabled
 
 SiteDash Client 1.5.0-pl
 -------------------------

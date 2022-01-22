@@ -120,6 +120,11 @@ switch ($params['request']) {
         $cmd->run();
         break;
 
+    case 'upgrade/modx3checks':
+        $cmd = new \modmore\SiteDashClient\Upgrade\MODX3Checks($modx);
+        $cmd->run();
+        break;
+
     default:
         http_response_code(400);
         echo json_encode([
