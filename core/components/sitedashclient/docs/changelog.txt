@@ -1,7 +1,12 @@
+SiteDash Client 1.6.1-pl
+------------------------
+Released on 2022-10-03
+
 - When upgrading MODX3, make sure PHP CLI version is at least 7.2 (instead of 5.6 for MODX 2.x)
+- symfony/process updated from v3.4.38 to v3.4.47
 
 SiteDash Client 1.6.0-pl
--------------------------
+------------------------
 Released on 2022-01-22
 
 - New: provide loaded PHP extensions in refreshes
