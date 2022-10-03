@@ -20,11 +20,13 @@ class Execute implements CommandInterface {
     protected $downloadUrl = '';
     protected $logFileName = '';
     private $logs = [];
+    private $targetVersion;
 
     public function __construct(modX $modx, $backupDir, $targetVersion, $nightly)
     {
         $this->modx = $modx;
         $this->logFileName = 'sitedash_upgrade_' . date('Y-m-d_His') . '.log';
+        $this->targetVersion = $targetVersion;
 
         $this->modx->setLogLevel(modX::LOG_LEVEL_INFO);
         $this->modx->setLogTarget([
@@ -137,12 +139,15 @@ class Execute implements CommandInterface {
         // Make sure we get an expected PHP version
         if (preg_match("/PHP (\d+.\d+.\d+)/i", $output, $matches)) {
             $v = $matches[1] ?? '';
-            if (!$v || version_compare($v, '5.6.0', '<')) {
-                $this->modx->log(modX::LOG_LEVEL_ERROR, 'PHP version check returned version  "' . $v . '" which is not valid or older than 5.6');
+            $min = version_compare($this->targetVersion, '3.0.0-dev1', '>=')
+                ? '7.2.0'
+                : '5.6.0';
+            if (!$v || version_compare($v, $min, '<')) {
+                $this->modx->log(modX::LOG_LEVEL_ERROR, 'PHP version check returned version  "' . $v . '" which is not valid or older than the required minimum of ' . $min);
                 http_response_code(503);
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Unable to run PHP in command line mode, `' . $process->getCommandLine() . '` returned version number "' . $v . '" which is either invalid or below the minimum required to install MODX.',
+                    'message' => 'Unable to run PHP in command line mode, `' . $process->getCommandLine() . '` returned version number "' . $v . '" which is either invalid or below the minimum required to install MODX ('.$min.').',
                     'output' => $output . ' // ' . $process->getErrorOutput(),
                     'logs' => $this->logs,
                     'errcode' => 'php-invalid-or-eol',

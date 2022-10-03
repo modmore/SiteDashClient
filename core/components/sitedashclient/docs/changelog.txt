@@ -1,3 +1,5 @@
+- When upgrading MODX3, make sure PHP CLI version is at least 7.2 (instead of 5.6 for MODX 2.x)
+
 SiteDash Client 1.6.0-pl
 -------------------------
 Released on 2022-01-22
