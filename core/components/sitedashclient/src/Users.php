@@ -13,22 +13,27 @@ class Users implements CommandInterface {
      * @var string
      */
     private $query;
+    /**
+     * @var int
+     */
+    private $inactiveMonths;
 
-    public function __construct(modX $modx, string $query)
+    public function __construct(modX $modx, string $query, int $inactiveMonths)
     {
         $this->modx = $modx;
         $this->query = trim($query);
+        $this->inactiveMonths = $inactiveMonths;
     }
 
     public function run()
     {
         $data = [];
 
-        if (empty($this->query) || strlen($this->query) < 2) {
+        if ((empty($this->query) || strlen($this->query) < 2) && empty($this->inactiveMonths)) {
             http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'message' => 'Invalid query, must be at least 2 characters.',
+                'message' => 'Invalid query. Must be at least 2 characters, or have an inactive manager user time period selected',
             ], JSON_PRETTY_PRINT);
             return;
         }
@@ -50,6 +55,13 @@ class Users implements CommandInterface {
             'OR:Profile.email:LIKE' => "%{$this->query}%",
             'OR:Profile.fullname:LIKE' => "%{$this->query}%",
         ]);
+
+        if ($this->inactiveMonths > 0) {
+            $monthsAgo = strtotime("-{$this->inactiveMonths} months");
+            $c->where([
+                'Profile.thislogin:<' => $monthsAgo,
+            ]);
+        }
 
         /** @var modUser $user */
         foreach ($this->modx->getIterator(modUser::class, $c) as $user) {

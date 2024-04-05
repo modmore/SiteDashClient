@@ -1,4 +1,5 @@
 <?php
+
 ini_set('display_errors', 1);
 /* Get the core config */
 if (!file_exists(dirname(dirname(__FILE__)).'/config.core.php')) {
@@ -16,7 +17,7 @@ $modx->initialize('mgr');
 $modx->getService('error','error.modError', '', '');
 $buildPath = '../_build';
 $componentPath = dirname(dirname(__FILE__));
-define(PKG_NAME, 'SiteDashClient');
+define('PKG_NAME', 'SiteDashClient');
 define('PKG_NAME_LOWER',strtolower(PKG_NAME));
 
 echo "Loading SiteDashClient service\n";
