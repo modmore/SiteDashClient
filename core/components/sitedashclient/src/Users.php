@@ -6,6 +6,7 @@ use modUser;
 use modUserGroup;
 use modUserProfile;
 use modX;
+use MODX\Revolution\modUserGroupMember;
 
 class Users implements CommandInterface {
     protected $modx;
@@ -58,13 +59,19 @@ class Users implements CommandInterface {
 
         if ($this->inactiveMonths > 0) {
             $monthsAgo = strtotime("-{$this->inactiveMonths} months");
-            $c->where([
+            $this->modx->log(1, $monthsAgo);
+            $c->andCondition([
                 'Profile.thislogin:<' => $monthsAgo,
             ]);
         }
 
         /** @var modUser $user */
         foreach ($this->modx->getIterator(modUser::class, $c) as $user) {
+            // If this is an inactive user search, ignore users without access to the manager
+            if ($this->inactiveMonths > 0 && !$this->checkMgrAccess($user)) {
+                continue;
+            }
+
             $ta = $user->toArray('', false, true);
             $ta['groups'] = [];
 
@@ -84,5 +91,30 @@ class Users implements CommandInterface {
             'total' => count($data),
             'data' => $data,
         ], JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * @param modUser $user
+     * @return bool
+     */
+    public function checkMgrAccess(modUser $user): bool
+    {
+        $isMgrUser = false;
+        $attributes = $this->modx->call(
+            'modAccessContext',
+            'loadAttributes',
+            [
+                $this->modx,
+                'mgr',
+                $user->get('id'),
+            ]
+        );
+        foreach ($attributes as $aclContext => $acl) {
+            if ($aclContext === 'mgr') {
+                $isMgrUser = true;
+            }
+        }
+
+        return $isMgrUser;
     }
 }

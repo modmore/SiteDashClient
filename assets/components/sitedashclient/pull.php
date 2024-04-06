@@ -115,9 +115,8 @@ switch ($params['request']) {
         break;
 
     case 'users':
-        $modx->log(1, print_r($params, true));
         $query = isset($params['params']['query']) && !empty($params['params']['query']) ? (string)$params['params']['query'] : '';
-        $inactiveMonths = isset($params['params']['inactive_months']) && !empty($params['params']['inactive_months']) ? (string)$params['params']['inactive_months'] : '';
+        $inactiveMonths = isset($params['params']['inactive_months']) && !empty($params['params']['inactive_months']) ? (int)$params['params']['inactive_months'] : 0;
         $cmd = new \modmore\SiteDashClient\Users($modx, $query, $inactiveMonths);
         $cmd->run();
         break;
