@@ -59,7 +59,6 @@ class Users implements CommandInterface {
 
         if ($this->inactiveMonths > 0) {
             $monthsAgo = strtotime("-{$this->inactiveMonths} months");
-            $this->modx->log(1, $monthsAgo);
             $c->andCondition([
                 'Profile.thislogin:<' => $monthsAgo,
             ]);
