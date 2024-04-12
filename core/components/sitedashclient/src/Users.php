@@ -66,18 +66,34 @@ class Users implements CommandInterface {
 
         /** @var modUser $user */
         foreach ($this->modx->getIterator(modUser::class, $c) as $user) {
-            // If this is an inactive user search, ignore users without access to the manager
-            if ($this->inactiveMonths > 0 && !$this->checkMgrAccess($user)) {
-                continue;
-            }
-
             $ta = $user->toArray('', false, true);
             $ta['groups'] = [];
 
-            $groups = $this->modx->getCollectionGraph('modUserGroup', '{"UserGroupMembers":{}}', array('UserGroupMembers.member' => $user->get('id')));
+            $c = $this->modx->newQuery('modUserGroup');
+            $c->leftJoin('modUserGroupMember', 'UserGroupMembers');
+            if ($this->inactiveMonths > 0) {
+                $c->innerJoin('modAccessContext', 'Access', [
+                    'Access.principal = modUserGroup.id',
+                    'Access.target' => 'mgr',
+                    [
+                        'Access.principal_class:=' => 'modUserGroup', // MODX 2.x
+                        'OR:Access.principal_class:=' => 'MODX\\Revolution\\modUserGroup' // MODX 3.x
+                    ],
+                ]);
+            }
+            $c->where([
+                'UserGroupMembers.member' => $user->get('id'),
+            ]);
+
+            $groups = $this->modx->getCollection('modUserGroup', $c);
             /** @var modUserGroup $group */
             foreach ($groups as $group) {
                 $ta['groups'][] = $group->get('name');
+            }
+
+            // We're only concerned with manager users if doing an inactive months search
+            if ($this->inactiveMonths > 0 && empty($ta['groups'])) {
+                continue;
             }
 
             $data[] = $ta;
@@ -90,30 +106,5 @@ class Users implements CommandInterface {
             'total' => count($data),
             'data' => $data,
         ], JSON_PRETTY_PRINT);
-    }
-
-    /**
-     * @param modUser $user
-     * @return bool
-     */
-    public function checkMgrAccess(modUser $user): bool
-    {
-        $isMgrUser = false;
-        $attributes = $this->modx->call(
-            'modAccessContext',
-            'loadAttributes',
-            [
-                $this->modx,
-                'mgr',
-                $user->get('id'),
-            ]
-        );
-        foreach ($attributes as $aclContext => $acl) {
-            if ($aclContext === 'mgr') {
-                $isMgrUser = true;
-            }
-        }
-
-        return $isMgrUser;
     }
 }
