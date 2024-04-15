@@ -1,3 +1,9 @@
+SiteDash Client 1.7.0-pl
+------------------------
+Released on 2024-04-15
+
+- Add support to search for inactive manager users [Sterc]
+
 SiteDash Client 1.6.1-pl
 ------------------------
 Released on 2022-10-03
