@@ -6,7 +6,6 @@ use modUser;
 use modUserGroup;
 use modUserProfile;
 use modX;
-use MODX\Revolution\modUserGroupMember;
 
 class Users implements CommandInterface {
     protected $modx;
@@ -62,6 +61,27 @@ class Users implements CommandInterface {
             $c->andCondition([
                 'Profile.thislogin:<' => $monthsAgo,
             ]);
+
+            $mgrQuery = $this->modx->newQuery('modUserGroup');
+            $mgrQuery->leftJoin('modUserGroupMember', 'UserGroupMembers');
+            $mgrQuery->innerJoin('modAccessContext', 'Access', [
+                'Access.principal = modUserGroup.id',
+                'Access.target' => 'mgr',
+                [
+                    'Access.principal_class:=' => 'modUserGroup', // MODX 2.x
+                    'OR:Access.principal_class:=' => 'MODX\\Revolution\\modUserGroup' // MODX 3.x
+                ],
+            ]);
+
+            $groups = [];
+            foreach ($this->modx->getIterator('modUserGroup', $mgrQuery) as $group) {
+                $groups[] = $group->get('id');
+            }
+
+            $c->leftJoin('modUserGroupMember', 'UserGroupMembers');
+            $c->where([
+                'UserGroupMembers.user_group:IN' => $groups,
+            ]);
         }
 
         /** @var modUser $user */
@@ -71,16 +91,6 @@ class Users implements CommandInterface {
 
             $c = $this->modx->newQuery('modUserGroup');
             $c->leftJoin('modUserGroupMember', 'UserGroupMembers');
-            if ($this->inactiveMonths > 0) {
-                $c->innerJoin('modAccessContext', 'Access', [
-                    'Access.principal = modUserGroup.id',
-                    'Access.target' => 'mgr',
-                    [
-                        'Access.principal_class:=' => 'modUserGroup', // MODX 2.x
-                        'OR:Access.principal_class:=' => 'MODX\\Revolution\\modUserGroup' // MODX 3.x
-                    ],
-                ]);
-            }
             $c->where([
                 'UserGroupMembers.member' => $user->get('id'),
             ]);
@@ -89,11 +99,6 @@ class Users implements CommandInterface {
             /** @var modUserGroup $group */
             foreach ($groups as $group) {
                 $ta['groups'][] = $group->get('name');
-            }
-
-            // We're only concerned with manager users if doing an inactive months search
-            if ($this->inactiveMonths > 0 && empty($ta['groups'])) {
-                continue;
             }
 
             $data[] = $ta;
