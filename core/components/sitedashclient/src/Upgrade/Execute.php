@@ -412,6 +412,7 @@ class Execute implements CommandInterface {
             'unpacked' => 0,
             'language' => $this->modx->getOption('manager_language'),
             'core_path' => MODX_CORE_PATH,
+            'http_host' => MODX_HTTP_HOST,
             'remove_setup_directory' => true
         );
         $xml = new DOMDocument('1.0', 'utf-8');

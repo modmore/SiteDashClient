@@ -1,3 +1,5 @@
+- Fix upgrading MODX causing the http_host in the core config to be set to localhost [#297]
+
 SiteDash Client 1.7.0-pl
 ------------------------
 Released on 2024-04-15
