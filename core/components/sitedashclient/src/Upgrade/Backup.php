@@ -37,23 +37,18 @@ class Backup implements CommandInterface {
 
     public function run()
     {
-        if (!function_exists('proc_open')) {
-            http_response_code(503);
-            echo json_encode([
-                'success' => false,
-                'message' => 'The proc_open() function is disabled on your server. This is required for the backup to run.',
-                'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory)
-            ], JSON_PRETTY_PRINT);
-            return;
-        }
-        if (!function_exists('proc_get_status')) {
-            http_response_code(503);
-            echo json_encode([
-                'success' => false,
-                'message' => 'The proc_get_status() function is disabled on your server. This is required to allow the status of the backup to be checked.',
-                'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory)
-            ], JSON_PRETTY_PRINT);
-            return;
+        $functions = ['proc_open', 'proc_get_status', 'proc_close'];
+        foreach ($functions as $function) {
+            if (!function_exists($function)) {
+                http_response_code(503);
+                echo json_encode([
+                    'success' => false,
+                    'message' => "The {$function}() function is disabled on your server. This is required for the backup to run.",
+                    'directory' => str_replace(MODX_CORE_PATH, '{core_path}', $this->targetDirectory)
+                ], JSON_PRETTY_PRINT);
+
+                return;
+            }
         }
 
         if (!$this->createDirectory($this->targetDirectory)) {
