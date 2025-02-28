@@ -87,6 +87,7 @@ class Users implements CommandInterface {
         /** @var modUser $user */
         foreach ($this->modx->getIterator(modUser::class, $c) as $user) {
             $ta = $user->toArray('', false, true);
+            $ta['last_password_change'] = $this->getLastPasswordChange($user->get('id'));
             $ta['groups'] = [];
 
             $c = $this->modx->newQuery('modUserGroup');
@@ -111,5 +112,25 @@ class Users implements CommandInterface {
             'total' => count($data),
             'data' => $data,
         ], JSON_PRETTY_PRINT);
+    }
+
+    private function getLastPasswordChange(int $user)
+    {
+        $c = $this->modx->newQuery('modManagerLog');
+        $c->where([
+            'user' => $user,
+            'action' => 'change_profile_password',
+        ]);
+        $c->sortby('occurred', 'DESC');
+        $c->select('occurred');
+        $c->limit(1);
+        $c->prepare();
+        $c->stmt->execute();
+        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Users.getLastPasswordChange: ' . $c->toSQL());
+        $result = $c->stmt->fetch(\PDO::FETCH_ASSOC);
+        if (empty($result)) {
+            return null;
+        }
+        return $result['occurred'];
     }
 }
