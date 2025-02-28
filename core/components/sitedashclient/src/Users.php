@@ -126,7 +126,6 @@ class Users implements CommandInterface {
         $c->limit(1);
         $c->prepare();
         $c->stmt->execute();
-        $this->modx->log(modX::LOG_LEVEL_ERROR, 'Users.getLastPasswordChange: ' . $c->toSQL());
         $result = $c->stmt->fetch(\PDO::FETCH_ASSOC);
         if (empty($result)) {
             return null;
