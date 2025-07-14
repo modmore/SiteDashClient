@@ -139,15 +139,19 @@ class Execute implements CommandInterface {
         // Make sure we get an expected PHP version
         if (preg_match("/PHP (\d+.\d+.\d+)/i", $output, $matches)) {
             $v = $matches[1] ?? '';
-            $min = version_compare($this->targetVersion, '3.0.0-dev1', '>=')
-                ? '7.2.0'
-                : '5.6.0';
+            if (version_compare($this->targetVersion, '3.1.0-dev1', '>=')) {
+                $min = '7.4.0';
+            } elseif (version_compare($this->targetVersion, '3.0.0-dev1', '>=')) {
+                $min = '7.2.0';
+            } else {
+                $min = '5.6.0';
+            }
             if (!$v || version_compare($v, $min, '<')) {
                 $this->modx->log(modX::LOG_LEVEL_ERROR, 'PHP version check returned version  "' . $v . '" which is not valid or older than the required minimum of ' . $min);
                 http_response_code(503);
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Unable to run PHP in command line mode, `' . $process->getCommandLine() . '` returned version number "' . $v . '" which is either invalid or below the minimum required to install MODX ('.$min.').',
+                    'message' => 'Unable to run PHP in command line mode, `' . $process->getCommandLine() . '` returned version number "' . $v . '" which is either invalid or below the minimum required to install MODX ' . $this->targetVersion . ' ('.$min.').',
                     'output' => $output . ' // ' . $process->getErrorOutput(),
                     'logs' => $this->logs,
                     'errcode' => 'php-invalid-or-eol',
