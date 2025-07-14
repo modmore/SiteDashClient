@@ -1,3 +1,7 @@
+SiteDash Client 1.7.2-pl
+------------------------
+Released on 2025-07-14
+
 - Make sure to check for proc_close as well before running a backup [S47321]
 - Fix pre-upgrade PHP version check to account for increased min version in MODX 3.1 [#366]
 
