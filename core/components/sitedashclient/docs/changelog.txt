@@ -1,3 +1,9 @@
+SiteDash Client 1.7.3-pl
+------------------------
+Released on 2025-07-23
+
+- Fix the MODX3 upgrade checks not properly checking @EVAL TVs [S52316]
+
 SiteDash Client 1.7.2-pl
 ------------------------
 Released on 2025-07-14

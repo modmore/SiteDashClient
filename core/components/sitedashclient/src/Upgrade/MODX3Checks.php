@@ -25,9 +25,8 @@ class MODX3Checks implements CommandInterface {
         }
 
         foreach ($this->modx->getIterator('modTemplateVar', [
-            'input_properties:LIKE' => "%@EVAL%",
-            'OR:default_text:LIKE' => "%@EVAL%",
-
+            'elements:LIKE' => "@EVAL%",
+            'OR:default_text:LIKE' => "@EVAL%"
         ]) as $tv) {
             $data['eval_tvs'][] = $tv->get(['name', 'caption']);
         }
