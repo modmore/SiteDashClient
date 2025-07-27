@@ -56,8 +56,7 @@ class SiteDashClient
         }
 
         // Re-create the signature data
-        $sigData = 'SIG-V1||';
-        $sigData .= !empty($data['request']) ? $data['request'] : 'REQUEST-NOT-PROVIDED';
+        $sigData = !empty($data['request']) ? $data['request'] : 'REQUEST-NOT-PROVIDED';
         $sigData .= '||';
         $sigData .= !empty($data['params']) ? $this->_stringifyParams($data['params']) : 'PARAMS-NOT-PROVIDED';
         $sigData .= '||';
@@ -75,9 +74,19 @@ class SiteDashClient
         // Decode the signature, as we transmit it encoded as base64 instead of binary
         $signature = base64_decode($signature);
 
-        // Verify the signature is correct for the specified data using the public key, matching the private key on the SiteDash server
-        $result = openssl_verify($sigData, $signature, $pubKey, OPENSSL_ALGO_SHA1);
-        return $result === 1;
+        // First try SHA256 (SIG-V2)
+        $sigDataSHA256 = 'SIG-V2||' . $sigData;
+        $resultSHA256 = openssl_verify($sigDataSHA256, $signature, $pubKey, OPENSSL_ALGO_SHA256);
+
+        if ($resultSHA256 === 1) {
+            return true;
+        }
+
+        // If SHA256 verification fails, fall back to SHA1 (SIG-V1)
+        $sigDataSHA1 = 'SIG-V1||' . $sigData;
+        $resultSHA1 = openssl_verify($sigDataSHA1, $signature, $pubKey, OPENSSL_ALGO_SHA1);
+
+        return $resultSHA1 === 1;
     }
 
     protected function _getSiteKey() {
