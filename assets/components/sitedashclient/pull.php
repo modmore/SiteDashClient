@@ -90,7 +90,8 @@ switch ($params['request']) {
 
     case 'package/update':
         $package = isset($params['params']['package']) && !empty($params['params']['package']) ? (string)$params['params']['package'] : '';
-        $cmd = new \modmore\SiteDashClient\Package\Update($modx, $package);
+        $target = isset($params['params']['target']) && !empty($params['params']['target']) ? (string)$params['params']['target'] : '';
+        $cmd = new \modmore\SiteDashClient\Package\Update($modx, $package, $target);
         $cmd->run();
         break;
 

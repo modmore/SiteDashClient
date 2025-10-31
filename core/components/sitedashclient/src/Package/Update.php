@@ -17,11 +17,16 @@ class Update implements CommandInterface
     protected $_location;
     /** @var \modTransportPackage */
     protected $_newPackage;
+    /**
+     * @var mixed|string
+     */
+    private $targetSignature;
 
-    public function __construct(\modX $modx, $signature = '')
+    public function __construct(\modX $modx, $signature = '', $target = '')
     {
         $this->modx = $modx;
         $this->packageSignature = $signature;
+        $this->targetSignature = $target;
     }
 
     public function run()
@@ -104,16 +109,28 @@ class Update implements CommandInterface
             $this->log('Available version: ' . (string)$package['signature']);
         }
 
-//        if (count($options) !== 1) {
-//             @todo support preferred versions to upgrade to
-//        }
+        if ($this->targetSignature !== '') {
+            foreach ($options as $opt) {
+                if ($opt['signature'] === $this->targetSignature) {
+                    $this->log('Found requested version: ' . (string)$package['signature']);
 
-        $opt = reset($options);
-        if (count($options) > 1) {
-            $this->log('Updating to: ' . $opt['signature']);
+                    $this->_signature = $opt['signature'];
+                    $this->_location = $opt['location'];
+                    break;
+                }
+            }
+            if (empty($this->_signature)) {
+                throw new \RuntimeException('Requested version not found');
+            }
+        } else {
+            // For older or unbound package updates, we just pick the latest
+            $opt = reset($options);
+            if (count($options) > 1) {
+                $this->log('Defaulting to: ' . $opt['signature']);
+            }
+            $this->_signature = $opt['signature'];
+            $this->_location = $opt['location'];
         }
-        $this->_signature = $opt['signature'];
-        $this->_location = $opt['location'];
     }
 
     protected function download() {

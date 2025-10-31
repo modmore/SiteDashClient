@@ -1,4 +1,5 @@
-- Implement new update checker that allows more precise remote upgrades
+- Implement new update check that allows more precise remote upgrades
+- Allow targeting specific package version updates
 
 SiteDash Client 1.7.3-pl
 ------------------------
