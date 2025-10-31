@@ -94,6 +94,11 @@ switch ($params['request']) {
         $cmd->run();
         break;
 
+    case 'package/checkupdates':
+        $packages = isset($params['params']['packages']) && !empty($params['params']['packages']) ? (string)$params['params']['packages'] : '';
+        $cmd = new \modmore\SiteDashClient\Package\CheckUpdates($modx, $packages);
+        $cmd->run();
+        break;
 
     case 'upgrade/backup':
         $cmd = new \modmore\SiteDashClient\Upgrade\Backup($modx);
