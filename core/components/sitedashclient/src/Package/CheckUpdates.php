@@ -1,10 +1,9 @@
 <?php
-
 namespace modmore\SiteDashClient\Package;
 
 use modmore\SiteDashClient\CommandInterface;
-use modTransportPackage;
-use modTransportProvider;
+use MODX\Revolution\Transport\modTransportPackage;
+use MODX\Revolution\Transport\modTransportProvider;
 use RuntimeException;
 
 class CheckUpdates implements CommandInterface
@@ -44,19 +43,21 @@ class CheckUpdates implements CommandInterface
             throw new RuntimeException('Empty package name');
         }
 
-        /** @var modTransportPackage|\MODX\Revolution\Transport\modTransportPackage $package */
-        $package = $this->modx->getObject('transport.modTransportPackage', [
+        /** @var \modTransportPackage|modTransportPackage $package */
+        $c = $this->modx->newQuery('transport.modTransportPackage');
+        $c->where([
             'signature:LIKE' => $packageName . '-%',
-            'AND:installed:=' => true,
+            'AND:installed:!=' => true, // if a package is uninstalled, we don't want to force a check
         ]);
-
+        $c->sortby('installed', 'DESC');
+        $c->limit(1);
+        $package = $this->modx->getObject('transport.modTransportPackage', $c);
         if (!$package) {
             throw new RuntimeException('Package not installed.');
         }
-        $this->log('Found package ' . $package->get('signature'));
 
-        /** @var modTransportProvider|\MODX\Revolution\Transport\modTransportPackage $provider */
-        $provider =& $package->getOne('Provider');
+        /** @var \modTransportProvider|modTransportProvider $provider */
+        $provider = $package->getOne('Provider');
         if (!$provider) {
             throw new RuntimeException('No provider associated with package.');
         }
