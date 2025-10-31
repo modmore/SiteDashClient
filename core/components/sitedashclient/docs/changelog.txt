@@ -1,3 +1,5 @@
+- Implement new update checker that allows more precise remote upgrades
+
 SiteDash Client 1.7.3-pl
 ------------------------
 Released on 2025-07-23
