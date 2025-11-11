@@ -1,3 +1,7 @@
+SiteDash Client 1.8.0-rc1
+------------------------
+Released on 2025-11-11
+
 - Implement new update check that allows more precise remote upgrades
 - Allow targeting specific package version updates
 
