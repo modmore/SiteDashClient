@@ -25,8 +25,8 @@ class Update implements CommandInterface
     public function __construct(\modX $modx, $signature = '', $target = '')
     {
         $this->modx = $modx;
-        $this->packageSignature = $signature;
-        $this->targetSignature = $target;
+        $this->packageSignature = trim($signature);
+        $this->targetSignature = trim($target);
     }
 
     public function run()
@@ -110,7 +110,9 @@ class Update implements CommandInterface
         }
 
         if ($this->targetSignature !== '') {
+            $foundOpts = [];
             foreach ($options as $opt) {
+                $foundOpts[] = $opt['signature'];
                 if ($opt['signature'] === $this->targetSignature) {
                     $this->log('Found requested version: ' . (string)$package['signature']);
 
@@ -120,7 +122,7 @@ class Update implements CommandInterface
                 }
             }
             if (empty($this->_signature)) {
-                throw new \RuntimeException('Requested version not found');
+                throw new \RuntimeException('Requested version "' . $this->targetSignature . '" not found in available versions: ' . implode(', ', $foundOpts));
             }
         } else {
             // For older or unbound package updates, we just pick the latest
