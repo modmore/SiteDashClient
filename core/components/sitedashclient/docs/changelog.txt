@@ -1,4 +1,5 @@
 - Fix potential error in Refresh when skipping health checks
+- Fix some installed packages appearing as uninstalled
 
 SiteDash Client 1.8.0-rc1
 ------------------------

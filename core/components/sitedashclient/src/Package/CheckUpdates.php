@@ -47,7 +47,7 @@ class CheckUpdates implements CommandInterface
         $c = $this->modx->newQuery('transport.modTransportPackage');
         $c->where([
             'signature:LIKE' => $packageName . '-%',
-            'AND:installed:!=' => true, // if a package is uninstalled, we don't want to force a check
+            'AND:installed:!=' => null, // if a package is uninstalled, we don't want to force a check
         ]);
         $c->sortby('installed', 'DESC');
         $c->limit(1);
