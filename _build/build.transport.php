@@ -183,6 +183,9 @@ $vehicle->resolve('file',array(
 $vehicle->resolve('php', array(
     'source' => $sources['resolvers'] . 'sitekey.resolver.php'
 ));
+$vehicle->resolve('php', array(
+    'source' => $sources['resolvers'] . 'fix_name.resolver.php'
+));
 
 $modx->log(modX::LOG_LEVEL_INFO,'Packaged in resolvers.'); flush();
 $builder->putVehicle($vehicle);

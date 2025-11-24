@@ -1,6 +1,7 @@
 - Fix potential error in Refresh when skipping health checks
 - Fix some installed packages appearing as uninstalled
 - Trim spaces from site key validation to prevent copy/paste issues
+- Rename installed packages with name "SiteDash Client" to "SiteDashClient" in the manager
 
 SiteDash Client 1.8.0-rc1
 ------------------------
