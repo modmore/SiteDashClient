@@ -1,3 +1,7 @@
+SiteDash Client 1.8.0-rc2
+------------------------
+Released on 2025-11-24
+
 - Fix potential error in Refresh when skipping health checks
 - Fix some installed packages appearing as uninstalled
 - Trim spaces from site key validation to prevent copy/paste issues
