@@ -154,16 +154,14 @@ class Refresh implements CommandInterface {
 
         $skipHealth = array_key_exists('skip_session_health', $this->params) ? (bool)$this->params['skip_session_health'] : false;
 
-        if ($skipHealth === false) {
-            $name = $this->modx->getTableName('modSession');
-            if ($statusQuery = $this->modx->query('CHECK TABLE ' . $name)) {
-                $status = $statusQuery->fetchAll(\PDO::FETCH_ASSOC);
-                $i = [];
-                foreach ($status as $s) {
-                    $i[$s['Msg_type']] = $s['Msg_text'];
-                }
-                $health['session_table'] = json_encode($i);
+        $name = $this->modx->getTableName('modSession');
+        if (($skipHealth === false) && $statusQuery = $this->modx->query('CHECK TABLE ' . $name)) {
+            $status = $statusQuery->fetchAll(\PDO::FETCH_ASSOC);
+            $i = [];
+            foreach ($status as $s) {
+                $i[$s['Msg_type']] = $s['Msg_text'];
             }
+            $health['session_table'] = json_encode($i);
         }
 
         $c = 'SELECT TABLE_ROWS, DATA_LENGTH, INDEX_LENGTH FROM information_schema.TABLES WHERE table_schema = ' . $this->modx->quote($this->modx->connection->config['dbname']) . ' AND table_name = ' . $this->modx->quote(trim($name, '`'));
