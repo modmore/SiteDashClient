@@ -7,6 +7,7 @@ if (!isset($modx) && isset($object) && isset($object->xpdo)) {
 
 // Check if we got the site key
 $siteKey = array_key_exists('site_key', $options) ? $options['site_key'] : false;
+$siteKey = trim($siteKey);
 if (empty($siteKey)) {
     $modx->log(modX::LOG_LEVEL_ERROR, 'Oops, you did not provide the Site Key. The Site Key is used to identify and authenticate this with the SiteDash platform.');
     return false;
@@ -15,6 +16,7 @@ $modx->log(modX::LOG_LEVEL_WARN, 'Verifying Site Key "' . $siteKey . '"');
 
 // Authenticate the siteKey
 $server = array_key_exists('site_dash_server', $options) ? $options['site_dash_server'] : false;
+$server = trim($server);
 if (!$server) {
     $modx->log(modX::LOG_LEVEL_ERROR, 'Please enter a valid SiteDash Server URL.');
     return false;
