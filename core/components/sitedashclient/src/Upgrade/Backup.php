@@ -86,6 +86,12 @@ class Backup implements CommandInterface {
         }
         $cmd = [$mysqldump, "-u{$database_user}", $password_parameter, "-h {$database_server}", $dbase];
 
+        // Add --no-tablespaces by default; allow disabling via system setting
+        $disableNoTablespaces = (bool)$this->modx->getOption('sitedashclient.mysqldump_disable_no_tablespaces', null, false, true);
+        if (!$disableNoTablespaces) {
+            $cmd[] = '--no-tablespaces';
+        }
+
         $excludes = ['modSession'];
         foreach ($excludes as $exclude) {
             $table = trim($this->modx->getTableName($exclude, false), '`');
@@ -101,8 +107,7 @@ class Backup implements CommandInterface {
 
         try {
             $backupProcess->run();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $msg = $e->getMessage();
             $msg = str_replace($password_parameter, '-p\'<PASS>\'', $msg);
             $trace = $e->getTraceAsString();

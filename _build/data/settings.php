@@ -12,4 +12,8 @@ return [
         'area' => 'security',
         'value' => true,
     ],
+    'mysqldump_disable_no_tablespaces' => [
+        'area' => 'backup',
+        'value' => false,
+    ],
 ];
