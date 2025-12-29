@@ -153,6 +153,7 @@ class Refresh implements CommandInterface {
         $health = [];
 
         $skipHealth = array_key_exists('skip_session_health', $this->params) ? (bool)$this->params['skip_session_health'] : false;
+        $skipOtherHealth = array_key_exists('skip_other_health_checks', $this->params) ? (bool)$this->params['skip_other_health_checks'] : false;
 
         $name = $this->modx->getTableName('modSession');
         if (($skipHealth === false) && $statusQuery = $this->modx->query('CHECK TABLE ' . $name)) {
@@ -164,15 +165,17 @@ class Refresh implements CommandInterface {
             $health['session_table'] = json_encode($i);
         }
 
-        $c = 'SELECT TABLE_ROWS, DATA_LENGTH, INDEX_LENGTH FROM information_schema.TABLES WHERE table_schema = ' . $this->modx->quote($this->modx->connection->config['dbname']) . ' AND table_name = ' . $this->modx->quote(trim($name, '`'));
+        if ($skipOtherHealth === false) {
+            $c = 'SELECT TABLE_ROWS, DATA_LENGTH, INDEX_LENGTH FROM information_schema.TABLES WHERE table_schema = ' . $this->modx->quote($this->modx->connection->config['dbname']) . ' AND table_name = ' . $this->modx->quote(trim($name, '`'));
 
-        if ($sizeQuery = $this->modx->query($c)) {
-            $rows = $sizeQuery->fetchAll(\PDO::FETCH_ASSOC);
-            $health['session_sizes'] = reset($rows);
-        }
+            if ($sizeQuery = $this->modx->query($c)) {
+                $rows = $sizeQuery->fetchAll(\PDO::FETCH_ASSOC);
+                $health['session_sizes'] = reset($rows);
+            }
 
-        if ($lastQuery = $this->modx->query('SELECT access FROM ' . $name . ' ORDER BY access ASC LIMIT 1')) {
-            $health['session_oldest'] = $lastQuery->fetchColumn();
+            if ($lastQuery = $this->modx->query('SELECT access FROM ' . $name . ' ORDER BY access ASC LIMIT 1')) {
+                $health['session_oldest'] = $lastQuery->fetchColumn();
+            }
         }
 
         return $health;
