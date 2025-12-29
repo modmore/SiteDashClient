@@ -1,4 +1,5 @@
 - Add the --no-tablespaces attribute to backups for wider compatibility, with mysqldump_disable_no_tablespaces setting to turn that back on [S57855]
+- Add a separate SessionHealth command to take that out of the refresh flow
 
 SiteDash Client 1.8.0-rc2
 ------------------------

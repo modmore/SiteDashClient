@@ -88,6 +88,11 @@ switch ($params['request']) {
         $cmd->run();
         break;
 
+    case 'system/sessionhealth':
+        $cmd = new \modmore\SiteDashClient\System\SessionHealth($modx);
+        $cmd->run();
+        break;
+
     case 'package/update':
         $package = isset($params['params']['package']) && !empty($params['params']['package']) ? (string)$params['params']['package'] : '';
         $target = isset($params['params']['target']) && !empty($params['params']['target']) ? (string)$params['params']['target'] : '';
