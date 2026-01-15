@@ -1,5 +1,6 @@
 <?php
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 /**
  * @param string $filename The name of the file.
  * @return string The file's content
@@ -23,7 +24,7 @@ if (!defined('MOREPROVIDER_BUILD')) {
     /* define version */
     define('PKG_NAME', 'SiteDashClient');
     define('PKG_NAME_LOWER', strtolower(PKG_NAME));
-    define('PKG_VERSION', '1.7.3');
+    define('PKG_VERSION', '1.8.0');
     define('PKG_RELEASE', 'pl');
 
     /* load modx */
