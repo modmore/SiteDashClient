@@ -1,3 +1,8 @@
+SiteDash Client 1.8.0-pl
+------------------------
+Released on 2026-01-15
+
+- At the end of 2026, we will be increasing the minimum PHP version to PHP 7.4.
 - Add the --no-tablespaces attribute to backups for wider compatibility, with mysqldump_disable_no_tablespaces setting to turn that back on [S57855]
 - Add a separate SessionHealth command to take that out of the refresh flow
 - Add param to disable other session-related checks in refresh

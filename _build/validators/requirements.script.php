@@ -24,9 +24,11 @@ switch($options[xPDOTransport::PACKAGE_ACTION]) {
         $modx->log($level, '- PHP version 5.5.9+: ' . PHP_VERSION);
 
         if ($success) {
+            if (version_compare(PHP_VERSION, '7.4.0') < 0) {
+                $modx->log(xPDO::LOG_LEVEL_ERROR, 'After December 31st, 2026, the minimum PHP version to connect with SiteDash will increase to PHP 7.4. You are currently using ' . PHP_VERSION . ' and will need to upgrade to PHP 7.4 or later by the end of 2026.');
+            }
             $modx->log(xPDO::LOG_LEVEL_INFO, 'Requirements look good!');
-        }
-        else {
+        } else {
             $modx->log(xPDO::LOG_LEVEL_ERROR, 'Unfortunately, your server does not meet the minimum requirements for SiteDash Client and installation cannot continue.');
         }
 
